@@ -11,6 +11,7 @@ El documento de diseño completo (GDD) vive en claude.ai; este archivo resume lo
 - **Todo el código lleva comentarios en español** que expliquen la intención, no solo lo que hace la línea.
 - Revisa cada cambio contra los principios de arquitectura de abajo. Si algo no encaja, dilo antes de programarlo.
 - Commits pequeños con mensajes claros en español.
+- El GDD completo está en docs/GDD.md: consúltalo antes de programar cada sistema.
 
 ## Principios de arquitectura (no romper)
 
