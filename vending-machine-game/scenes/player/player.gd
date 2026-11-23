@@ -1,0 +1,79 @@
+class_name Player
+extends CharacterBody3D
+## El protagonista en primera persona: camina, corre y mira con el ratón.
+##
+## Por ahora solo existe el modo "caminar". Los demás modos del GDD (mesa,
+## teléfono, baño…) se agregarán cuando existan esas estaciones, para no
+## programar algo que todavía no se usa.
+##
+## Toda la entrada pasa por acciones del Input Map (move_*, sprint), nunca
+## por teclas fijas, para poder reasignar teclas y soportar control después.
+
+@export_group("Movimiento")
+## Velocidad al caminar en metros por segundo. Más adelante la calculará
+## Stats a partir de mejoras como "Piernas de Gelatina".
+@export var walk_speed: float = 3.0
+## Cuánto se multiplica la velocidad al mantener la acción "sprint".
+@export var sprint_multiplier: float = 1.6
+## Qué tan rápido se alcanza la velocidad deseada (m/s²). Un valor alto
+## se siente "seco"; uno bajo, como si el piso estuviera resbaloso.
+@export var acceleration: float = 20.0
+
+@export_group("Cámara")
+## Radianes que gira la cámara por cada píxel que se mueve el ratón.
+## Más adelante vendrá del menú de opciones.
+@export var mouse_sensitivity: float = 0.002
+## Límite para mirar arriba/abajo; evita que la cámara dé la vuelta completa.
+@export var max_pitch_degrees: float = 85.0
+
+# La cabeza gira arriba/abajo; el cuerpo entero gira a los lados. Separarlos
+# evita que el jugador se incline al mirar al piso.
+@onready var _head: Node3D = %Head
+
+
+func _ready() -> void:
+	# En primera persona el ratón debe quedar oculto y "atrapado" en la ventana.
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Mirar con el ratón: el movimiento del ratón no es una tecla, por eso se
+	# lee como evento. Con control se agregarán acciones para el stick.
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		var motion := event as InputEventMouseMotion
+		rotate_y(-motion.relative.x * mouse_sensitivity)
+		_head.rotate_x(-motion.relative.y * mouse_sensitivity)
+		var max_pitch := deg_to_rad(max_pitch_degrees)
+		_head.rotation.x = clampf(_head.rotation.x, -max_pitch, max_pitch)
+
+	# TEMPORAL hasta que exista el menú de pausa: Esc (acción integrada
+	# "ui_cancel") suelta el ratón, y un clic lo vuelve a capturar.
+	elif event.is_action_pressed("ui_cancel"):
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	elif event is InputEventMouseButton and event.is_pressed() \
+			and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _physics_process(delta: float) -> void:
+	# Gravedad: get_gravity() usa la del proyecto, así no hay números mágicos.
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+
+	# get_vector combina las 4 acciones en un vector 2D (x = lados,
+	# y = adelante/atrás) y ya maneja la diagonal para no ir más rápido.
+	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	# Convertimos ese vector a la orientación actual del jugador: "adelante"
+	# es hacia donde mira el cuerpo, no siempre el mismo eje del mundo.
+	var direction := transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)
+
+	var speed := walk_speed
+	if Input.is_action_pressed("sprint"):
+		speed *= sprint_multiplier
+
+	# Solo se acelera en el plano horizontal; la vertical la maneja la gravedad.
+	var target_velocity := direction * speed
+	velocity.x = move_toward(velocity.x, target_velocity.x, acceleration * delta)
+	velocity.z = move_toward(velocity.z, target_velocity.z, acceleration * delta)
+
+	move_and_slide()

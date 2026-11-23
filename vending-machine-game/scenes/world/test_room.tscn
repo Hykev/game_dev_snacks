@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.55, 0.6, 0.65, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cube"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cube"]
+
+[node name="TestRoom" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.6428, -0.766, 0, 0.766, 0.6428, 0, 5, 0)
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="CubeA" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, -4)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeA"]
+mesh = SubResource("BoxMesh_cube")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeA"]
+shape = SubResource("BoxShape3D_cube")
+
+[node name="CubeB" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, -4, 1, -6)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeB"]
+mesh = SubResource("BoxMesh_cube")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeB"]
+shape = SubResource("BoxShape3D_cube")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]

@@ -2,7 +2,7 @@
 
 Juego incremental en primera persona, 3D low poly con texturas pixel art, hecho en **Godot 4.7 (GDScript)**, solo PC (Windows, Linux, Steam Deck).
 El protagonista come snacks de una máquina expendedora mágica para encontrar tazos, coleccionarlos, venderlos o reciclarlos, y pagar una deuda semanal.
-El documento de diseño completo (GDD) vive en claude.ai; este archivo resume lo que importa para programar.
+El GDD completo está en `docs/GDD.md`; este archivo resume lo que importa para programar.
 
 ## Cómo trabajamos
 
@@ -11,7 +11,7 @@ El documento de diseño completo (GDD) vive en claude.ai; este archivo resume lo
 - **Todo el código lleva comentarios en español** que expliquen la intención, no solo lo que hace la línea.
 - Revisa cada cambio contra los principios de arquitectura de abajo. Si algo no encaja, dilo antes de programarlo.
 - Commits pequeños con mensajes claros en español.
-- El GDD completo está en docs/GDD.md: consúltalo antes de programar cada sistema.
+- El GDD (`docs/GDD.md`, ~28k tokens) se consulta antes de programar cada sistema, pero **nunca se lee entero**: busca con Grep la sección que necesitas y lee solo esas líneas.
 
 ## Principios de arquitectura (no romper)
 
