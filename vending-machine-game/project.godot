@@ -14,6 +14,15 @@ config/name="vending-machine-game"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+EventBus="*res://autoload/event_bus.gd"
+Database="*res://autoload/database.gd"
+GameState="*res://autoload/game_state.gd"
+TimeManager="*res://autoload/time_manager.gd"
+SaveManager="*res://autoload/save_manager.gd"
+AudioManager="*res://autoload/audio_manager.gd"
+
 [display]
 
 window/stretch/mode="canvas_items"
