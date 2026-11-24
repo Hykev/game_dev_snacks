@@ -16,11 +16,13 @@ El loop completo comprar → comer → tazo → vender → baño → dormir → 
 ## Guardado y envíos (pendientes menores)
 
 - `meta.json` para los Ecos (cuando existan) y menú principal con 3 ranuras (hoy siempre ranura 1, se carga sola al iniciar).
-- Para empezar de cero: menú de depuración (F1) → «Nueva partida». También se puede borrar `%APPDATA%\Godot\app_userdata\vending-machine-game\save_slot_1.json`.
+- Para empezar de cero: menú de depuración (F1) → «Nueva partida» (ranura actual) o «Borrar TODOS los guardados y cerrar» (todas las ranuras; cierra sin volver a guardar).
+- **Menú de pausa (Esc):** aún no existe. Hoy Esc solo suelta el ratón y F1 puede pausar el reloj. Llegará con el menú principal (pausar el árbol de escenas, opciones, guardar y salir).
+- Caja de envío: capacidad 5 (`GameState.SHIPPING_BOX_CAPACITY`, TEMPORAL). Futura rama de mejoras para agrandarla.
 - Al cargar, el jugador aparece en su posición inicial de la escena (no se guardan posiciones).
 - Envíos: falta la bandeja animada de la puerta, publicar desde la app TazoBay del teléfono, las notas del repartidor y las mejoras (Recolección a Domicilio, Repartidor Puntual, Venta Instantánea).
 - Menú de depuración: falta simular N snacks con estadísticas y forzar rareza. Abrirlo sentado a la mesa te levanta al cerrarlo (usa el modo PANEL).
-- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor pasa en horas pares desde las 08:00 (10:00, 12:00…).
+- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor pasa en horas pares desde las 08:00 (10:00, 12:00…); «lleno» dura desde 100 hasta bajar de 90 (`FULL_RELEASE_FULLNESS`); dormir solo desde las 22:00, o antes si la máquina está vacía (con confirmación).
 
 ## Después de la máquina 3D
 
@@ -37,7 +39,7 @@ El loop completo comprar → comer → tazo → vender → baño → dormir → 
 
 ## UI y audio
 
-- Avisos (ya existe `EventBus.notification_requested`): falta usarlos para inventario lleno al recoger y lleno para comer.
+- Avisos (ya existe `EventBus.notification_requested`): falta usarlo para inventario lleno al recoger snacks del piso.
 - Gruñido del estómago al pasar de 80 de llenura (AudioManager).
 - Periódico del baño (decorativo, GDD 5.4).
 
