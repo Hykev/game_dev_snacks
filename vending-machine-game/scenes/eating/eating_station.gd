@@ -285,6 +285,10 @@ func _open_snack(body: SnackBody) -> void:
 func _eat_from(body: SnackBody) -> void:
 	if body == null:
 		return
+	# GDD 5.4: con la llenura al tope no se puede comer; hay que ir al baño.
+	if not GameState.can_eat():
+		return
+	GameState.add_fullness(body.snack.fullness_per_bite)
 	var finished := body.take_bite()
 	EventBus.snack_bitten.emit(body.snack.id, body.bites_left)
 	if finished:

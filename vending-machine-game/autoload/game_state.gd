@@ -22,6 +22,8 @@ const STARTING_UNLOCKED_SNACKS: Array[StringName] = [&"lzy", &"drk"]
 # Casillas de la zona de tazos de la mesa (GDD 5.3). Lo subirá la mejora
 # «Zona de Tazos Ampliada».
 const MAX_TABLE_TAZOS := 8
+# Llenura máxima (GDD 5.4). La subirá la mejora «Estómago Elástico».
+const MAX_FULLNESS := 100.0
 
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
@@ -40,6 +42,14 @@ var shines: int:
 		return _shines
 
 var _shines: int = 0
+
+## Llenura del estómago (0 a MAX_FULLNESS). Es decimal porque la digestión y
+## el baño la bajan poco a poco; en pantalla se muestra redondeada.
+var fullness: float:
+	get:
+		return _fullness
+
+var _fullness: float = 0.0
 
 ## Suerte actual (0.0 = 0 %, 0.5 = 50 %). La calculará Stats con mejoras,
 ## álbumes y bebidas; por ahora siempre es 0.
@@ -102,6 +112,35 @@ func add_money(amount: int) -> void:
 		return
 	_money += amount
 	EventBus.money_changed.emit(_money)
+
+
+# --- Llenura ---
+
+## GDD 5.4: al llegar al tope ya no se puede comer.
+func can_eat() -> bool:
+	return _fullness < MAX_FULLNESS
+
+
+func is_full() -> bool:
+	return _fullness >= MAX_FULLNESS
+
+
+## Suma llenura (un bocado). Nunca pasa del máximo.
+func add_fullness(amount: float) -> void:
+	_set_fullness(_fullness + amount)
+
+
+## Resta llenura (baño y, más adelante, digestión). Nunca baja de 0.
+func reduce_fullness(amount: float) -> void:
+	_set_fullness(_fullness - amount)
+
+
+func _set_fullness(value: float) -> void:
+	var clamped := clampf(value, 0.0, MAX_FULLNESS)
+	if is_equal_approx(clamped, _fullness):
+		return
+	_fullness = clamped
+	EventBus.fullness_changed.emit(_fullness, MAX_FULLNESS)
 
 
 # --- Inventario ---

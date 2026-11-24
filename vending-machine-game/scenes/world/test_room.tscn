@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/vending/vending_panel.tscn" id="6_vending_panel"]
 [ext_resource type="PackedScene" path="res://scenes/eating/eating_station.tscn" id="7_station"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tazo_card/tazo_card.tscn" id="8_tazo_card"]
+[ext_resource type="PackedScene" path="res://scenes/world/interactables/toilet.tscn" id="9_toilet"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -98,3 +99,6 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1, 0, 4)
 [node name="VendingPanel" parent="." unique_id=1919004749 instance=ExtResource("6_vending_panel")]
 
 [node name="TazoCard" parent="." instance=ExtResource("8_tazo_card")]
+
+[node name="Toilet" parent="." instance=ExtResource("9_toilet")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)

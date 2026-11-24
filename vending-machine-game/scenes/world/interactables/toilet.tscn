@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/world/interactables/toilet.gd" id="1_toilet"]
+[ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="2_interactable"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_bowl"]
+size = Vector3(0.45, 0.42, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bowl"]
+size = Vector3(0.45, 0.42, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tank"]
+size = Vector3(0.45, 0.4, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_interact"]
+size = Vector3(0.6, 0.9, 0.85)
+
+[node name="Toilet" type="StaticBody3D"]
+script = ExtResource("1_toilet")
+
+[node name="Bowl" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+mesh = SubResource("BoxMesh_bowl")
+
+[node name="Tank" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, -0.25)
+mesh = SubResource("BoxMesh_tank")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+shape = SubResource("BoxShape3D_bowl")
+
+[node name="Interactable" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -0.05)
+script = ExtResource("2_interactable")
+prompt_text = "Usar el baño"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interactable"]
+shape = SubResource("BoxShape3D_interact")

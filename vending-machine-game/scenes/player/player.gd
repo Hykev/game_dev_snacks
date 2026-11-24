@@ -10,15 +10,18 @@ extends CharacterBody3D
 ## Toda la entrada pasa por acciones del Input Map (move_*, sprint,
 ## interact, stand_up), nunca por teclas fijas.
 
-## Modos del jugador. Se irán sumando BAÑO, TELÉFONO, MÁQUINA, DORMIR…
+## Modos del jugador. Se irán sumando TELÉFONO, MÁQUINA, DORMIR…
 enum Mode {
-	WALK,   ## Caminar por el apartamento.
-	TABLE,  ## Sentado a la mesa: cámara fija, ratón libre.
-	PANEL,  ## Un panel 2D abierto (temporal: el de la máquina).
+	WALK,      ## Caminar por el apartamento.
+	TABLE,     ## Sentado a la mesa: cámara fija, ratón libre.
+	PANEL,     ## Un panel 2D abierto (temporal: el de la máquina).
+	BATHROOM,  ## Sentado en el baño: no camina, pero puede mirar alrededor.
 }
 
 # Cuántos Interactable superpuestos revisa el rayo como máximo por frame.
 const MAX_STACKED_INTERACTABLES := 4
+# GDD 5.4: con la llenura al tope se camina 20 % más lento.
+const FULL_SPEED_MULTIPLIER := 0.8
 
 @export_group("Movimiento")
 ## Velocidad al caminar en metros por segundo. Más adelante la calculará
@@ -48,6 +51,9 @@ const MAX_STACKED_INTERACTABLES := 4
 var _mode: Mode = Mode.WALK
 # El Interactable que el jugador está mirando ahora (null si ninguno).
 var _current_interactable: Interactable = null
+# Multiplicador de velocidad por llenura. Se actualiza solo cuando llega la
+# señal fullness_changed, no se pregunta a GameState cada frame.
+var _fullness_speed_multiplier := 1.0
 
 
 func _ready() -> void:
@@ -56,7 +62,20 @@ func _ready() -> void:
 	_interact_ray.add_exception(self)
 	EventBus.modal_ui_changed.connect(_on_modal_ui_changed)
 	EventBus.table_sit_requested.connect(_on_table_sit_requested)
+	EventBus.toilet_sit_requested.connect(_set_mode.bind(Mode.BATHROOM))
+	EventBus.toilet_finished.connect(_on_toilet_finished)
+	EventBus.fullness_changed.connect(_on_fullness_changed)
 	_set_mode(Mode.WALK)
+
+
+func _on_fullness_changed(current: float, maximum: float) -> void:
+	_fullness_speed_multiplier = FULL_SPEED_MULTIPLIER if current >= maximum else 1.0
+
+
+## El baño terminó solo: el jugador se levanta (si seguía sentado).
+func _on_toilet_finished() -> void:
+	if _mode == Mode.BATHROOM:
+		_set_mode(Mode.WALK)
 
 
 ## Único lugar donde se cambia de modo: decide cámara, ratón y avisa.
@@ -72,6 +91,10 @@ func _set_mode(new_mode: Mode, view_camera: Camera3D = null) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		Mode.PANEL:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		Mode.BATHROOM:
+			# Misma cámara: solo se queda quieto mirando el "periódico".
+			_camera.make_current()
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# Fuera de CAMINAR no se interactúa con el mundo: ocultar «E · …».
 	if new_mode != Mode.WALK:
 		_set_current_interactable(null)
@@ -96,21 +119,35 @@ func _unhandled_input(event: InputEvent) -> void:
 				_set_mode(Mode.WALK)
 		Mode.PANEL:
 			pass  # El panel maneja su propia entrada.
+		Mode.BATHROOM:
+			# Se puede mirar alrededor; Q se levanta antes de terminar.
+			if event.is_action_pressed("stand_up"):
+				_set_mode(Mode.WALK)
+			else:
+				_handle_look(event)
 
 
-func _handle_walk_input(event: InputEvent) -> void:
-	# Mirar con el ratón: el movimiento del ratón no es una tecla, por eso se
-	# lee como evento. Con control se agregarán acciones para el stick.
+## Mirar con el ratón: el movimiento del ratón no es una tecla, por eso se
+## lee como evento. Con control se agregarán acciones para el stick.
+## Devuelve true si el evento era de mirar (ya se usó).
+func _handle_look(event: InputEvent) -> bool:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion := event as InputEventMouseMotion
 		rotate_y(-motion.relative.x * mouse_sensitivity)
 		_head.rotate_x(-motion.relative.y * mouse_sensitivity)
 		var max_pitch := deg_to_rad(max_pitch_degrees)
 		_head.rotation.x = clampf(_head.rotation.x, -max_pitch, max_pitch)
+		return true
+	return false
+
+
+func _handle_walk_input(event: InputEvent) -> void:
+	if _handle_look(event):
+		return
 
 	# Usar lo que estamos mirando. El jugador no sabe QUÉ hace el objeto:
 	# solo le avisa, y el objeto decide (llamar hacia abajo).
-	elif event.is_action_pressed("interact"):
+	if event.is_action_pressed("interact"):
 		if _current_interactable != null:
 			_current_interactable.interact(self)
 
@@ -138,7 +175,7 @@ func _physics_process(delta: float) -> void:
 	# es hacia donde mira el cuerpo, no siempre el mismo eje del mundo.
 	var direction := transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)
 
-	var speed := walk_speed
+	var speed := walk_speed * _fullness_speed_multiplier
 	if Input.is_action_pressed("sprint"):
 		speed *= sprint_multiplier
 

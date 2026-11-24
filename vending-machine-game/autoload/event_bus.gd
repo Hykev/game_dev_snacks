@@ -80,6 +80,21 @@ signal tazo_card_requested(index: int)
 @warning_ignore("unused_signal")
 signal tazo_card_closed()
 
+# --- Llenura y baño ---
+
+## La llenura cambió (la emite GameState). El HUD dibuja la barra y el
+## jugador camina más lento si está llena.
+@warning_ignore("unused_signal")
+signal fullness_changed(current: float, maximum: float)
+
+## El inodoro pide que el jugador se siente (modo BAÑO).
+@warning_ignore("unused_signal")
+signal toilet_sit_requested()
+
+## El inodoro terminó de vaciar la llenura; el jugador se levanta solo.
+@warning_ignore("unused_signal")
+signal toilet_finished()
+
 # --- Jugador y estaciones ---
 
 ## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa
