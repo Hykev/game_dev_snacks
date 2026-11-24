@@ -31,14 +31,17 @@ const RECYCLE_SHINES: Dictionary = {
 }
 ## Comisión inicial de TazoBay (la baja la mejora «Vendedor Verificado»).
 const BASE_COMMISSION := 0.20
+## Lo mínimo que paga cualquier tazo al venderse.
+const MIN_SALE_PRICE := 1
 
 
 ## Precio de venta: P = precio del snack × valor de rareza × bonos × (1 − comisión).
-## Se redondea a pesos enteros (un Basura de un snack barato puede valer $0).
+## Se redondea a pesos enteros, con un mínimo de MIN_SALE_PRICE para que
+## ningún tazo (ni el Basura de un snack barato) se venda por $0.
 static func get_sale_price(tazo: TazoData, snack_price: int,
 		commission: float = BASE_COMMISSION, bonus: float = 1.0) -> int:
 	var multiplier: float = SALE_MULTIPLIERS.get(tazo.rarity, 0.0)
-	return roundi(snack_price * multiplier * bonus * (1.0 - commission))
+	return maxi(MIN_SALE_PRICE, roundi(snack_price * multiplier * bonus * (1.0 - commission)))
 
 
 ## Brillos que da reciclar este tazo.

@@ -29,6 +29,11 @@ const SLEEPY_SPEED_MULTIPLIER := 0.7
 # sentarse o pararse. La altura de pie se lee de la escena al iniciar.
 const SEATED_HEAD_HEIGHT := 1.1
 const SIT_ANIMATION_TIME := 0.3
+# Inclinación de la cabeza (grados, negativo = abajo) al aparecer en un
+# lugar fijo: levantarse, sentarse en el baño o despertar.
+const PLACED_PITCH_DEGREES := -15.0
+# Cuánto puede girar a cada lado sentado en el baño (no ve hacia atrás).
+const SEATED_MAX_YAW_DEGREES := 90.0
 
 @export_group("Movimiento")
 ## Velocidad al caminar en metros por segundo. Más adelante la calculará
@@ -70,6 +75,8 @@ var _head_tween: Tween
 # mueble). Así siempre se levanta en el mismo lugar, sin importar por dónde
 # llegó. null si no está sentado.
 var _stand_point: Node3D = null
+# Orientación (Y) al sentarse en el baño; base del límite de giro.
+var _seated_yaw := 0.0
 
 
 func _ready() -> void:
@@ -89,10 +96,12 @@ func _ready() -> void:
 
 ## Coloca al jugador en `point`: misma posición, mirando hacia donde mira el
 ## punto (su -Z), con la cabeza derecha y sin velocidad.
+## La cabeza queda un poco inclinada hacia abajo (PLACED_PITCH_DEGREES) para
+## que el jugador vea el piso y no se desubique al aparecer.
 func _place_at(point: Node3D) -> void:
 	global_position = point.global_position
 	rotation = Vector3(0.0, point.global_rotation.y, 0.0)
-	_head.rotation.x = 0.0
+	_head.rotation.x = deg_to_rad(PLACED_PITCH_DEGREES)
 	velocity = Vector3.ZERO
 
 
@@ -101,6 +110,8 @@ func _place_at(point: Node3D) -> void:
 func _on_toilet_sit_requested(sit_point: Node3D, stand_point: Node3D) -> void:
 	_stand_point = stand_point
 	_place_at(sit_point)
+	# Hacia donde mira sentado: desde aquí solo puede girar ±90°.
+	_seated_yaw = rotation.y
 	_set_mode(Mode.BATHROOM)
 
 
@@ -196,6 +207,12 @@ func _handle_look(event: InputEvent) -> bool:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion := event as InputEventMouseMotion
 		rotate_y(-motion.relative.x * mouse_sensitivity)
+		# Sentado en el baño no puede mirar hacia atrás: el giro se limita a
+		# ±SEATED_MAX_YAW_DEGREES desde hacia donde se sentó.
+		if _mode == Mode.BATHROOM:
+			var max_yaw := deg_to_rad(SEATED_MAX_YAW_DEGREES)
+			var offset := clampf(angle_difference(_seated_yaw, rotation.y), -max_yaw, max_yaw)
+			rotation.y = _seated_yaw + offset
 		_head.rotate_x(-motion.relative.y * mouse_sensitivity)
 		var max_pitch := deg_to_rad(max_pitch_degrees)
 		_head.rotation.x = clampf(_head.rotation.x, -max_pitch, max_pitch)
