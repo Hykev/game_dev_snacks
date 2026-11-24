@@ -183,7 +183,15 @@ Diez sistemas cubren todo el juego. Cada uno se describe con lo mínimo para pro
 - Rejilla de **4 columnas × 5 filas = 20 casillas** (A1…E4). Filas A–D: los 16 snacks, cada uno en su casilla fija. Fila E (abajo): las 4 bebidas.
 - Al inicio solo están activas A1 y A2. Cada casilla se activa con la mejora «Licencia de Sabor» cuando su capítulo lo permite; las bebidas se activan por capítulo.
 - Cada casilla tiene un stock diario que se repone a las 08:00. Las vacías o bloqueadas se ven con el vidrio oscuro y un candado.
-- Compra manual: teclear código → pagar (billete o tarjeta, tarjeta al desbloquear el banco) → confirmar → el snack cae → recogerlo (E). Después del tutorial, la compra se hace en un panel de la máquina con un clic por artículo; la versión de teclear queda como detalle divertido.
+- **Compra sobre la máquina 3D, sin ventanas 2D.** Todo ocurre sobre el modelo de la máquina:
+  1. **Acercarse:** con E frente a la máquina, la cámara pasa a una vista fija de su frente (modo MÁQUINA) y el cursor queda libre. Q para alejarse.
+  2. **Elegir:** cada casilla muestra su snack en 3D detrás del vidrio. Al pasar el cursor encima, el snack se resalta con un *outline* (hover). Clic izquierdo lo agrega al carrito; clic derecho quita uno.
+  3. **Carrito:** la pantalla de la máquina muestra la lista escrita (nombre × cantidad y total). No se puede agregar más de lo que hay en stock ni comprar casillas bloqueadas.
+  4. **Pagar:** clic en el método de pago, que son objetos de la máquina: ranura de billetes (efectivo) y lector de tarjeta (tarjeta BanCruel, al desbloquearla). Si no alcanza, la pantalla lo dice y no se cobra nada.
+  5. **Bandeja:** los snacks pagados caen uno por uno a la bandeja de abajo. Clic en la bandeja la abre; con E se guardan en el inventario de uno en uno. Si el inventario está lleno, el snack se queda en la bandeja hasta que haya lugar (por eso comprar no exige espacio libre).
+  - El teclado numérico de la máquina queda decorativo y para el código secreto 0-4-2-0 (sección 13).
+  - Técnica: el hover, el outline y el clic usan el mismo cursor que la mesa (`GrabController`, que lee una "posición de cursor" y no el ratón directo), así funciona igual con control. La pantalla del carrito es un `Label3D` o un `SubViewport` sobre el modelo.
+  - *Prototipo gris:* mientras tanto se usa un panel 2D con un clic por artículo. Se reemplaza por esta versión justo después de la mesa (paso 5), que construye el cursor y el outline.
 - **Casilla dorada:** cada día una casilla al azar brilla y sus snacks tienen +50 % de suerte.
 - **Ranura mágica:** en un lateral de la máquina, donde se reciclan tazos a Brillos.
 - La máquina sube de nivel con cada capítulo (cambio de modelo/material).
@@ -511,7 +519,10 @@ Teclado y ratón, con controles distintos según el contexto (caminar, mesa, tel
 | Comer un bocado | Espacio (mantener con Masticación Continua) | Mesa |
 | Agitar | Mover el ratón rápido con un snack abierto agarrado | Mesa |
 | Coleccionar / Vender / Reciclar tazo | Clic en el tazo y elegir en su carta, o C / V / R con el ratón encima | Mesa |
-| Levantarse | Q | Mesa, baño |
+| Agregar al carrito / quitar | Clic izquierdo / clic derecho sobre el snack | Máquina |
+| Pagar / abrir bandeja | Clic en la ranura o el lector / clic en la bandeja | Máquina |
+| Guardar snack de la bandeja | E | Máquina |
+| Levantarse / alejarse | Q | Mesa, máquina, baño |
 | Navegar apps | Ratón (clic) | Teléfono |
 | Adelantar diálogo | Clic izquierdo o Espacio | Diálogo |
 | Menú de depuración | F1 | Solo en versión de desarrollo |
