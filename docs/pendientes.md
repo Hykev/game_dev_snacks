@@ -5,7 +5,7 @@ Lo marcado **TEMPORAL** en el código (comentarios `TEMPORAL:`) está explicado 
 
 ## Estado actual (prototipo gris)
 
-Hecho: pasos 1–7 (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente, guardado/carga en JSON, caja de envío física (empacar en la mesa → llevarla en el inventario → puerta) con repartidor cada 2 h que deja el dinero en la bandeja, avisos en pantalla y menú de depuración F1 con control del reloj).
+Hecho: pasos 1–7 (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente, guardado/carga en JSON, caja de envío física (empacar en la mesa → llevarla en el inventario → puerta) con repartidor que llega 1 h después de dejarla (la caja queda bloqueada) y deja el dinero en la bandeja, avisos en pantalla y menú de depuración F1 con control del reloj).
 El loop completo comprar → comer → tazo → vender → baño → dormir → guardar funciona en `scenes/world/test_room.tscn`. El fin del día lo coordina `DayCycle` (scenes/world/day_cycle.gd).
 
 ## Siguiente: máquina 3D (último paso del prototipo gris)
@@ -22,7 +22,7 @@ El loop completo comprar → comer → tazo → vender → baño → dormir → 
 - Al cargar, el jugador aparece en su posición inicial de la escena (no se guardan posiciones).
 - Envíos: falta la bandeja animada de la puerta, publicar desde la app TazoBay del teléfono, las notas del repartidor y las mejoras (Recolección a Domicilio, Repartidor Puntual, Venta Instantánea).
 - Menú de depuración: falta simular N snacks con estadísticas y forzar rareza. Abrirlo sentado a la mesa te levanta al cerrarlo (usa el modo PANEL).
-- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor pasa en horas pares desde las 08:00 (10:00, 12:00…); «lleno» dura desde 100 hasta bajar de 90 (`FULL_RELEASE_FULLNESS`); dormir solo desde las 22:00, o antes si la máquina está vacía (con confirmación).
+- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor llega 1 h de juego después de dejar la caja con tazos (`COURIER_DELAY_MINUTES`) y, si sigue pendiente al dormir, llega durante la noche; una caja vacía en la puerta no genera pedido; «lleno» dura desde 100 hasta bajar de 90 (`FULL_RELEASE_FULLNESS`); dormir solo desde las 22:00, o antes si ya no le alcanza para nada con stock contando efectivo + bandeja + caja (con confirmación), y nunca con llenura > 80 (`DayCycle.MAX_FULLNESS_TO_SLEEP`).
 
 ## Después de la máquina 3D
 

@@ -43,6 +43,10 @@ const SHIPPING_BOX_ITEM := &"shipping_box"
 # Cuántos tazos caben en la caja de envío. Pequeño a propósito: obliga a ir
 # a la puerta seguido. TEMPORAL: lo subirá una rama de mejoras (Stats).
 const SHIPPING_BOX_CAPACITY := 5
+# Minutos de juego desde que se deja la caja (con tazos) en la puerta hasta
+# que llega el repartidor. Dejarla es «pedir» el envío de ese paquete.
+# TEMPORAL: lo bajará la mejora «Repartidor Puntual».
+const COURIER_DELAY_MINUTES := 60
 
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
@@ -117,6 +121,9 @@ var _loose_snacks: Array[Dictionary] = []
 var _shipping_box: Array[Dictionary] = []
 var _box_location: BoxLocation = BoxLocation.TABLE
 var _door_money: int = 0
+# Minutos de juego que faltan para que llegue el repartidor; 0 = no hay
+# pedido. Mientras corre, la caja no se puede levantar de la puerta.
+var _courier_minutes_left: int = 0
 
 # Un elemento por espacio de la barra rápida. Espacio vacío = {}.
 # Espacio ocupado = {"snack_id": StringName, "count": int}. Solo ids y
@@ -152,6 +159,7 @@ func reset_new_game() -> void:
 	_shipping_box.clear()
 	_box_location = BoxLocation.TABLE
 	_door_money = 0
+	_courier_minutes_left = 0
 	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
 	_machine_stock.clear()
 	_rng.randomize()
@@ -171,6 +179,12 @@ func add_shines(amount: int) -> void:
 
 func _on_game_minutes_passed(minutes: int) -> void:
 	reduce_fullness(DIGESTION_PER_GAME_MINUTE * minutes)
+	# La cuenta del repartidor usa el mismo reloj (principio 9): pausar o
+	# acelerar el tiempo también lo afecta.
+	if is_courier_on_the_way():
+		_courier_minutes_left = maxi(0, _courier_minutes_left - minutes)
+		if _courier_minutes_left == 0:
+			_courier_arrives(false)
 
 
 # --- Día ---
@@ -191,6 +205,11 @@ func start_next_day() -> void:
 	_day += 1
 	_reset_day_stats()
 	restock_machine()
+	# Un pedido pendiente al dormir llegó durante la noche: el dinero espera
+	# en la bandeja de la puerta.
+	if is_courier_on_the_way():
+		_courier_minutes_left = 0
+		_courier_arrives(true)
 
 
 ## GDD 4: a las 02:00 se desmaya y pierde el 10 % del efectivo «por la
@@ -253,6 +272,7 @@ func get_save_data() -> Dictionary:
 		"shipping_box": _shipping_box.duplicate(true),
 		"box_location": _box_location,
 		"door_money": _door_money,
+		"courier_minutes_left": _courier_minutes_left,
 		"unlocked_snacks": _unlocked_snacks.duplicate(),
 		"machine_stock": stock,
 		"rng_seed": str(_rng.seed),
@@ -303,6 +323,7 @@ func apply_save_data(data: Dictionary) -> void:
 		_shipping_box.append({"tazo_id": StringName(item["tazo_id"]), "price": int(item["price"])})
 	_box_location = int(data.get("box_location", BoxLocation.TABLE)) as BoxLocation
 	_door_money = int(data.get("door_money", 0))
+	_courier_minutes_left = maxi(0, int(data.get("courier_minutes_left", 0)))
 	# Si dice que la caja está en el inventario pero no está en ningún
 	# espacio (partida dañada), se devuelve a la mesa para no perderla.
 	if _box_location == BoxLocation.INVENTORY and not _inventory.any(
@@ -489,13 +510,20 @@ func get_stock(snack_id: StringName) -> int:
 	return _machine_stock.get(snack_id, 0)
 
 
-## ¿Ya no queda nada en las casillas activas? (DayCycle lo usa: con la
-## máquina vacía se puede dormir antes de la noche).
-func is_machine_empty() -> bool:
+## ¿Todavía puede comprar algo hoy? Busca un snack activo con stock cuyo
+## precio alcance con el efectivo más el dinero que ya viene en camino (la
+## bandeja de la puerta y los tazos de la caja de envío). Si no, el jugador
+## ya no puede seguir el día y DayCycle lo deja dormir antes de la noche.
+## No cuenta los tazos sueltos en la mesa: venderlos o no es su decisión.
+func can_still_buy_from_machine() -> bool:
+	var budget := _money + _door_money + get_shipping_box_total()
 	for snack_id in _unlocked_snacks:
-		if get_stock(snack_id) > 0:
-			return false
-	return true
+		if get_stock(snack_id) <= 0:
+			continue
+		var snack := Database.get_snack(snack_id)
+		if snack != null and snack.price <= budget:
+			return true
+	return false
 
 
 ## Rellena todas las casillas activas. Por ahora se llama al iniciar; después
@@ -562,7 +590,9 @@ func pack_table_tazo(index: int) -> int:
 # --- Caja de envío, puerta y repartidor ---
 # La caja es un objeto único que está en UN lugar a la vez: junto a la mesa
 # (se empaca), en el inventario (se lleva) o en la puerta (espera al
-# repartidor). El repartidor se lleva los tazos y deja el dinero en la
+# repartidor). Dejarla en la puerta con tazos es «pedir» el envío: el
+# repartidor llega COURIER_DELAY_MINUTES después y, mientras tanto, el
+# paquete no se puede cambiar. Se lleva los tazos y deja el dinero en la
 # bandeja de la puerta; la caja vacía se queda ahí para recogerla.
 
 func get_box_location() -> BoxLocation:
@@ -590,10 +620,20 @@ func get_door_money() -> int:
 	return _door_money
 
 
+## ¿Hay un envío pedido que todavía no llega?
+func is_courier_on_the_way() -> bool:
+	return _courier_minutes_left > 0
+
+
+func get_courier_minutes_left() -> int:
+	return _courier_minutes_left
+
+
 ## Recoge la caja (de la mesa o de la puerta) al inventario: ocupa un
-## espacio vacío completo. Devuelve false si no hay espacio.
+## espacio vacío completo. Devuelve false si no hay espacio o si el
+## repartidor ya viene por ella.
 func pick_up_box() -> bool:
-	if _box_location == BoxLocation.INVENTORY:
+	if _box_location == BoxLocation.INVENTORY or is_courier_on_the_way():
 		return false
 	var index := _inventory.find({})
 	if index == -1:
@@ -605,8 +645,15 @@ func pick_up_box() -> bool:
 	return true
 
 
-## Deja la caja (que se lleva en el inventario) junto a la puerta.
+## Deja la caja (que se lleva en el inventario) junto a la puerta. Si tiene
+## tazos, se pide el repartidor (una caja vacía no genera pedido).
 func drop_box_at_door() -> bool:
+	if _box_location != BoxLocation.INVENTORY:
+		return false
+	# Se fija antes de soltarla para que la señal de _drop_box ya avise
+	# que el repartidor viene en camino.
+	if not _shipping_box.is_empty():
+		_courier_minutes_left = COURIER_DELAY_MINUTES
 	return _drop_box(BoxLocation.DOOR)
 
 
@@ -622,16 +669,18 @@ func is_slot_box(slot_index: int) -> bool:
 	return _inventory[slot_index].get("special", &"") == SHIPPING_BOX_ITEM
 
 
-## Pasa el repartidor: si la caja está en la puerta y tiene tazos, se los
-## lleva y deja el dinero en la bandeja de la puerta. Devuelve lo que dejó.
-func courier_collect() -> int:
+## Llega el repartidor: se lleva los tazos de la caja y deja el dinero en
+## la bandeja de la puerta. Avisa con courier_arrived (la puerta muestra el
+## aviso). `while_sleeping` = llegó durante la noche.
+func _courier_arrives(while_sleeping: bool) -> void:
 	if _box_location != BoxLocation.DOOR or _shipping_box.is_empty():
-		return 0
+		EventBus.shipping_changed.emit()
+		return
 	var total := get_shipping_box_total()
 	_shipping_box.clear()
 	_door_money += total
 	EventBus.shipping_changed.emit()
-	return total
+	EventBus.courier_arrived.emit(total, while_sleeping)
 
 
 ## Recoge el dinero de la bandeja de la puerta. Devuelve cuánto era.

@@ -73,6 +73,11 @@ signal table_tazos_changed()
 @warning_ignore("unused_signal")
 signal shipping_changed()
 
+## Pasó el repartidor: se llevó la caja y dejó `amount` en la bandeja de la
+## puerta. `while_sleeping` = true si llegó durante la noche.
+@warning_ignore("unused_signal")
+signal courier_arrived(amount: int, while_sleeping: bool)
+
 ## Se guardó un tazo en la colección (los álbumes lo usarán).
 @warning_ignore("unused_signal")
 signal collection_changed()

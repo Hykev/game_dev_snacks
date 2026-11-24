@@ -80,8 +80,13 @@ func get_whole_minute() -> int:
 
 ## Hora legible "HH:MM" (después de medianoche vuelve a 00, 01…).
 func get_clock_text() -> String:
-	var minute := get_whole_minute()
-	return "%02d:%02d" % [(minute / 60) % 24, minute % 60]
+	return format_clock(get_whole_minute())
+
+
+## Convierte un minuto del día en «HH:MM» (pasada la medianoche vuelve a
+## 00:00). Sirve para mostrar horas futuras: «el repartidor llega a las…».
+func format_clock(minute: int) -> String:
+	return "%02d:%02d" % [floori(minute / 60.0) % 24, minute % 60]
 
 
 func _process(delta: float) -> void:

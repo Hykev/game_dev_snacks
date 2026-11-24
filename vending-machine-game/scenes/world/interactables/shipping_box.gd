@@ -3,7 +3,8 @@ extends StaticBody3D
 ##
 ## No guarda estado: GameState dice dónde está la caja y este nodo solo se
 ## coloca ahí (junto a la mesa o junto a la puerta) o se oculta si está en
-## el inventario. «E · Recoger caja» la guarda en el inventario.
+## el inventario. «E · Recoger caja» la guarda en el inventario; si el
+## repartidor ya viene por ella, la E solo dice a qué hora llega.
 
 ## Lugar junto a la mesa (donde se empaca).
 @export var table_spot: Node3D
@@ -31,7 +32,10 @@ func _refresh() -> void:
 			_place(null)
 	var count := GameState.get_shipping_box_count()
 	_label.text = tr("Caja de envío (%d/%d)") % [count, GameState.SHIPPING_BOX_CAPACITY]
-	_interactable.prompt_text = tr("Recoger caja (%d)") % count
+	if GameState.is_courier_on_the_way():
+		_interactable.prompt_text = tr("Esperando al repartidor")
+	else:
+		_interactable.prompt_text = tr("Recoger caja (%d)") % count
 
 
 # Pone la caja en `spot`, o la oculta (sin colisión ni «E») si es null.
@@ -45,5 +49,11 @@ func _place(spot: Node3D) -> void:
 
 
 func _on_interacted(_by: Node) -> void:
+	# Con el envío pedido el paquete ya no se cambia: solo se avisa la hora.
+	if GameState.is_courier_on_the_way():
+		var arrival := TimeManager.get_whole_minute() + GameState.get_courier_minutes_left()
+		EventBus.notification_requested.emit(
+				tr("El paquete ya está pedido: el repartidor llega a las %s") % TimeManager.format_clock(arrival))
+		return
 	if not GameState.pick_up_box():
 		EventBus.notification_requested.emit(tr("Inventario lleno: no puedes cargar la caja"))

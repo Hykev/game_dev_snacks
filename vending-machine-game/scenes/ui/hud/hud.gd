@@ -64,6 +64,11 @@ func _refresh_shipping() -> void:
 	var parts: PackedStringArray = []
 	if GameState.get_shipping_box_count() > 0:
 		parts.append(tr("Caja: %d/%d ($%d)") % [GameState.get_shipping_box_count(), GameState.SHIPPING_BOX_CAPACITY, GameState.get_shipping_box_total()])
+	# La hora de llegada se calcula al pedir el envío (esta función corre con
+	# shipping_changed), así que no hace falta actualizarla cada minuto.
+	if GameState.is_courier_on_the_way():
+		var arrival := TimeManager.get_whole_minute() + GameState.get_courier_minutes_left()
+		parts.append(tr("Repartidor: llega a las %s") % TimeManager.format_clock(arrival))
 	if GameState.get_door_money() > 0:
 		parts.append(tr("Dinero en la puerta: $%d") % GameState.get_door_money())
 	_shipping_label.text = "\n".join(parts)

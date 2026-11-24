@@ -141,7 +141,7 @@ El centro del loop es comer; el baño es la pausa obligada que las mejoras van a
 4. **Decidir cada tazo:** coleccionar (álbum), vender (caja de envío) o reciclar (Brillos).
 5. **Baño:** cuando la llenura llega al tope ya no puedes comer; vas al baño y esperas unos segundos.
 6. **Vender y mejorar:** desde el teléfono publicas en el mercado, el repartidor recoge y te deposita; compras mejoras o abonas a la deuda.
-7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día: desde las 22:00 siempre; antes, solo si ya vaciaste la máquina (y pide confirmación). Así nadie puede saltarse días enteros durmiendo y perder de golpe.
+7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día: desde las 22:00 siempre; antes, solo si ya no puedes seguir el día (no te alcanza para ningún snack con stock, contando el efectivo, el dinero de la bandeja y los tazos de la caja de envío) y pide confirmación. Con la llenura sobre 80 no se puede dormir (hay que ir al baño); no hace falta estar en 0 y la llenura pasa al día siguiente. Así nadie puede saltarse días enteros durmiendo y perder de golpe, ni quedarse atorado sin dinero.
 8. **Resumen del día:** pantalla con lo comido, tazos encontrados, ganado, gastado y días para el próximo pago. Autoguardado.
 
 ### Tiempo
@@ -269,8 +269,8 @@ Cada tazo que sale se acomoda en la zona de tazos (izquierda de la mesa). Al hac
 **Venta:**
 
 1. Al inicio hay que llevar la caja a la puerta: se recoge con E (ocupa un espacio del inventario) y se deja con E junto a la puerta. De vuelta, la primera E en la mesa deja la caja en su lugar y la segunda te sienta. Más adelante también se publicará desde la app del mercado.
-2. El repartidor pasa cada 2 horas de juego; se lleva los tazos y deja el dinero en la bandeja de la puerta, con una notificación. La caja vacía se queda en la puerta.
-3. Mejoras: recolección desde la mesa, repartidor cada hora, venta instantánea.
+2. Dejar la caja con tazos en la puerta es «pedir» el envío (como si lo empacado fuera un pedido vendido en línea): el repartidor llega **1 hora de juego después** y, mientras tanto, la caja no se puede levantar ni cambiar. Se lleva los tazos y deja el dinero en la bandeja de la puerta, con una notificación; la caja vacía se queda en la puerta. Si el pedido sigue pendiente al dormir, llega durante la noche.
+3. Mejoras: recolección desde la mesa, repartidor más rápido, venta instantánea.
 
 **Mercado (simple):** cada tazo tiene un precio fijo (rareza × precio del snack × variante × bonos) menos la comisión de TazoBay. Sin demanda diaria, sin saturación y sin pedidos: vender siempre da lo mismo, así la decisión es solo coleccionar, vender o reciclar.
 
@@ -433,7 +433,7 @@ Costos base en la moneda indicada; cada nivel sube con la fórmula de la secció
 | Influencer de Tazos | +8 % al valor de venta | 5 | $50 | Cap. 1 |
 | Recolección a Domicilio | Ya no hay que llevar la caja a la puerta | 1 | $250 | Cap. 1 |
 | Paquete Sorpresa | Vender 10 repetidos de una vez regala 1 snack al azar | 1 | $300 | Cap. 1 |
-| Repartidor Puntual | El repartidor pasa cada 1 h en vez de 2 h | 1 | $400 | Cap. 2 |
+| Repartidor Puntual | El repartidor llega 30 min después de pedirlo en vez de 1 h | 1 | $400 | Cap. 2 |
 | Autoventa de Repetidos | Los repetidos van solos a la caja | 1 | $5.000 | Cap. 3 |
 | Cazador de Glitches | Comprador que paga ×2 por tazos Corruptos | 1 | $8.000 | Cap. 3 |
 | Venta Instantánea | El dinero llega al vender, sin esperar | 1 | $10.000 | Cap. 3 + Repartidor Puntual |
@@ -491,7 +491,7 @@ Todo ocurre en un apartamento de una habitación con 11 zonas interactuables. To
 | Mesa + sofá | E: sentarse | Estación de comer: zona de comer a la derecha, zona de tazos a la izquierda | La zona donde más tiempo se pasa: la que más detalle merece |
 | Repisas de álbumes | E: abrir álbum | Ver y completar colecciones | Junto a la mesa; los álbumes completos brillan |
 | Baño (inodoro) | E: sentarse | Vaciar la llenura | Periódico decorativo con chistes y pistas de easter eggs |
-| Cama | E: dormir | Termina el día, resumen y guardado | Desde las 22:00; antes solo con la máquina vacía y con confirmación |
+| Cama | E: dormir | Termina el día, resumen y guardado | Desde las 22:00; antes solo si ya no puede comprar nada (con confirmación). Nunca con llenura > 80 |
 | Mesa de noche | E: tomar | Teléfono (solo en el tutorial; después va en el inventario permanente) | Despertador decorativo con la hora |
 | TV | E: cambiar canal | Decorativa: comerciales de snacks, canales absurdos y easter eggs | Encendida de fondo da ambiente sonoro; no afecta la economía |
 | Puerta principal | E: dejar caja | Caja de envío de tazos vendidos; notas del repartidor | Mensajes de BanCruel deslizados bajo la puerta |
