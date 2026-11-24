@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SeriesData" format=3]
+
+[ext_resource type="Script" path="res://data/resources/series_data.gd" id="1_series"]
+[ext_resource type="Script" path="res://data/resources/tazo_data.gd" id="7_tazo_script"]
+[ext_resource type="Resource" path="res://data/tazos/lzy/lzy_01.tres" id="2_lzy_01"]
+[ext_resource type="Resource" path="res://data/tazos/lzy/lzy_05.tres" id="3_lzy_05"]
+[ext_resource type="Resource" path="res://data/tazos/lzy/lzy_08.tres" id="4_lzy_08"]
+[ext_resource type="Resource" path="res://data/tazos/lzy/lzy_13.tres" id="5_lzy_13"]
+[ext_resource type="Resource" path="res://data/tazos/lzy/lzy_15.tres" id="6_lzy_15"]
+
+[resource]
+script = ExtResource("1_series")
+id = &"lzy"
+display_name = "Couch Potatoes"
+tazos = Array[ExtResource("7_tazo_script")]([ExtResource("2_lzy_01"), ExtResource("3_lzy_05"), ExtResource("4_lzy_08"), ExtResource("5_lzy_13"), ExtResource("6_lzy_15")])

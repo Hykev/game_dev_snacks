@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SeriesData" format=3]
+
+[ext_resource type="Script" path="res://data/resources/series_data.gd" id="1_series"]
+[ext_resource type="Script" path="res://data/resources/tazo_data.gd" id="7_tazo_script"]
+[ext_resource type="Resource" path="res://data/tazos/drk/drk_01.tres" id="2_drk_01"]
+[ext_resource type="Resource" path="res://data/tazos/drk/drk_05.tres" id="3_drk_05"]
+[ext_resource type="Resource" path="res://data/tazos/drk/drk_08.tres" id="4_drk_08"]
+[ext_resource type="Resource" path="res://data/tazos/drk/drk_13.tres" id="5_drk_13"]
+[ext_resource type="Resource" path="res://data/tazos/drk/drk_15.tres" id="6_drk_15"]
+
+[resource]
+script = ExtResource("1_series")
+id = &"drk"
+display_name = "Nerd Triangles"
+tazos = Array[ExtResource("7_tazo_script")]([ExtResource("2_drk_01"), ExtResource("3_drk_05"), ExtResource("4_drk_08"), ExtResource("5_drk_13"), ExtResource("6_drk_15")])

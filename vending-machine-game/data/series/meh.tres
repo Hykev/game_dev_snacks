@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SeriesData" format=3]
+
+[ext_resource type="Script" path="res://data/resources/series_data.gd" id="1_series"]
+[ext_resource type="Script" path="res://data/resources/tazo_data.gd" id="7_tazo_script"]
+[ext_resource type="Resource" path="res://data/tazos/meh/meh_01.tres" id="2_meh_01"]
+[ext_resource type="Resource" path="res://data/tazos/meh/meh_05.tres" id="3_meh_05"]
+[ext_resource type="Resource" path="res://data/tazos/meh/meh_08.tres" id="4_meh_08"]
+[ext_resource type="Resource" path="res://data/tazos/meh/meh_13.tres" id="5_meh_13"]
+[ext_resource type="Resource" path="res://data/tazos/meh/meh_15.tres" id="6_meh_15"]
+
+[resource]
+script = ExtResource("1_series")
+id = &"meh"
+display_name = "Mid Candies"
+tazos = Array[ExtResource("7_tazo_script")]([ExtResource("2_meh_01"), ExtResource("3_meh_05"), ExtResource("4_meh_08"), ExtResource("5_meh_13"), ExtResource("6_meh_15")])

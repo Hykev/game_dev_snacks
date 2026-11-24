@@ -11,12 +11,18 @@ extends Node3D
 ##   (eat) solo el que se sostiene. El movimiento lo hace el GrabController.
 ## - Recoger: un snack que cae fuera de la mesa se puede recoger caminando y
 ##   vuelve a la zona de comer. TableSurface avisa cuándo sale o entra.
+## - Tazos: al terminar un snack le pide a GameState que tire el premio, y
+##   muestra los tazos que esperan en la zona de tazos (casillas fijas).
 ##
 ## Solo procesa entrada y cursor mientras el jugador está sentado.
 
 # Escena del snack físico. preload la carga al compilar el script, no a
 # mitad del juego (principio 8).
 const SNACK_BODY_SCENE := preload("res://scenes/eating/snack_body.tscn")
+const TAZO_TOKEN_SCENE := preload("res://scenes/eating/tazo_token.tscn")
+# Cuadrícula de casillas de la zona de tazos: 2 columnas × 4 filas = 8.
+const TAZO_COLUMNS := 2
+const TAZO_ROWS := 4
 # TEMPORAL: snacks colocados a la vez; cuida el presupuesto de física
 # (~6 cuerpos). Los dos límites los calculará Stats (Mesa Extensible).
 const MAX_SNACKS_ON_TABLE := 4
@@ -38,6 +44,8 @@ const SLOT_ACTIONS: Array[StringName] = [&"slot_1", &"slot_2", &"slot_3"]
 var _is_active := false
 var _hovered_zone: TableZone = null
 var _hovered_snack: SnackBody = null
+# Grupo fijo (pool) de fichas: una por casilla de la zona de tazos.
+var _tazo_tokens: Array[TazoToken] = []
 
 
 func _ready() -> void:
@@ -45,8 +53,33 @@ func _ready() -> void:
 	EventBus.player_mode_changed.connect(_on_player_mode_changed)
 	_table_surface.body_entered.connect(_on_table_surface_body_changed.bind(true))
 	_table_surface.body_exited.connect(_on_table_surface_body_changed.bind(false))
+	EventBus.table_tazos_changed.connect(_refresh_tazo_tokens)
+	_create_tazo_tokens()
+	_refresh_tazo_tokens()
 	# Sin jugador sentado no hay nada que calcular cada frame.
 	set_physics_process(false)
+
+
+## Crea una ficha oculta por casilla, una sola vez al iniciar (pool).
+func _create_tazo_tokens() -> void:
+	var slot_count := TAZO_COLUMNS * TAZO_ROWS
+	for i in slot_count:
+		var token := TAZO_TOKEN_SCENE.instantiate() as TazoToken
+		_tazo_zone.add_child(token)
+		token.global_position = _tazo_zone.get_slot_position(i, TAZO_COLUMNS, TAZO_ROWS)
+		token.hide()
+		_tazo_tokens.append(token)
+
+
+## Muestra en cada casilla el tazo que le toca (según GameState) y oculta
+## las casillas libres. Se llama solo cuando llega la señal, no cada frame.
+func _refresh_tazo_tokens() -> void:
+	var tazo_ids := GameState.get_table_tazos()
+	for i in _tazo_tokens.size():
+		if i < tazo_ids.size():
+			_tazo_tokens[i].show_tazo(Database.get_tazo(tazo_ids[i]))
+		else:
+			_tazo_tokens[i].hide()
 
 
 ## Un cuerpo entró o salió del volumen sobre la mesa. Solo nos importan los
@@ -198,6 +231,8 @@ func _eat_from(body: SnackBody) -> void:
 	EventBus.snack_bitten.emit(body.snack.id, body.bites_left)
 	if finished:
 		EventBus.snack_finished.emit(body.snack.id)
+		# El premio lo decide GameState (con LootSystem); la mesa solo pide.
+		GameState.resolve_finished_snack(body.snack.id)
 		if _grab_controller.held_body == body:
 			_grab_controller.release()
 		if _hovered_snack == body:

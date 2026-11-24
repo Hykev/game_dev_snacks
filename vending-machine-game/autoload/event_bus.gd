@@ -48,9 +48,20 @@ signal snack_opened(snack_id: StringName)
 @warning_ignore("unused_signal")
 signal snack_bitten(snack_id: StringName, bites_left: int)
 
-## Se terminó un snack. Aquí se tirará el premio (LootSystem) más adelante.
+## Se terminó un snack (el premio lo tira GameState.resolve_finished_snack).
 @warning_ignore("unused_signal")
 signal snack_finished(snack_id: StringName)
+
+# --- Tazos (las emite GameState) ---
+
+## Salió un tazo al terminar un snack. Lo usarán la revelación, el audio y
+## el tutorial.
+@warning_ignore("unused_signal")
+signal tazo_found(tazo_id: StringName)
+
+## Cambiaron los tazos que esperan sobre la mesa; la mesa redibuja sus fichas.
+@warning_ignore("unused_signal")
+signal table_tazos_changed()
 
 # --- Jugador y estaciones ---
 

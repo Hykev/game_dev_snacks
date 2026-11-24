@@ -6,8 +6,8 @@ extends Resource
 ## Inspector. Agregar un snack nuevo = crear otro .tres; no se toca código.
 ## Database los carga todos al iniciar y los indexa por `id`.
 ##
-## Campos que llegarán después, cuando existan sus sistemas: la serie de
-## tazos (SeriesData) y la escena 3D del envase.
+## Campo que llegará después, cuando exista su sistema: la escena 3D del
+## envase.
 
 ## Los 5 tipos de envase del GDD. Cada uno tendrá su animación de abrir.
 enum PackageType { BAG, TUBE, WRAPPER, BOX, EGG }
@@ -22,6 +22,8 @@ enum PackageType { BAG, TUBE, WRAPPER, BOX, EGG }
 @export var slot_code: String
 ## Capítulo en el que aparece (1–5).
 @export_range(1, 5) var chapter: int = 1
+## Serie de tazos que trae este snack.
+@export var series: SeriesData
 
 @export_group("Comer")
 ## Precio en pesos del juego ($).

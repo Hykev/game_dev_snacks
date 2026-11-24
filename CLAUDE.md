@@ -51,7 +51,7 @@ res://
   systems/         loot_system.gd, economy.gd, stats.gd, objective_system.gd
   data/
     resources/     definiciones de clase (snack_data.gd, tazo_data.gd, upgrade_data.gd…)
-    snacks/  tazos/  upgrades/  chapters/   (*.tres)
+    snacks/  series/  tazos/<serie>/  upgrades/  chapters/   (*.tres)
   scenes/
     main/  world/  world/interactables/  player/  eating/  ui/
   assets/          models/  textures/  audio/music/  audio/sfx/  fonts/

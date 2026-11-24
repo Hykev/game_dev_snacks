@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/eating/tazo_token.gd" id="1_token"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tazo"]
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.008
+radial_segments = 16
+rings = 1
+
+[node name="TazoToken" type="Node3D"]
+script = ExtResource("1_token")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.004, 0)
+mesh = SubResource("CylinderMesh_tazo")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+pixel_size = 0.0008
+billboard = 1
+no_depth_test = true
+font_size = 40
+outline_size = 8

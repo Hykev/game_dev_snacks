@@ -38,6 +38,21 @@ func contains_global_point(point: Vector3) -> bool:
 	return absf(local.x) <= half.x and absf(local.z) <= half.y
 
 
+## Posición global de la casilla `index` en una cuadrícula de
+## `columns` × `rows` sobre la zona. La casilla 0 es la más cercana a la
+## cámara y a la izquierda; se llena por filas hacia el fondo.
+func get_slot_position(index: int, columns: int, rows: int) -> Vector3:
+	var size := (mesh as PlaneMesh).size
+	var cell := Vector2(size.x / columns, size.y / rows)
+	var column := index % columns
+	var row := index / columns
+	var local := Vector3(
+		-size.x * 0.5 + (column + 0.5) * cell.x,
+		0.0,
+		size.y * 0.5 - (row + 0.5) * cell.y)
+	return to_global(local)
+
+
 ## Un punto al azar sobre la zona, a `height` metros de altura: desde ahí se
 ## sueltan los snacks para que caigan con física.
 func get_drop_point(height: float) -> Vector3:

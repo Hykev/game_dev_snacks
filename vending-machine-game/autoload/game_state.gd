@@ -19,6 +19,9 @@ const DAILY_STOCK := 5
 # Casillas activas al empezar (GDD 5.1: solo A1 y A2). Las demás se
 # activarán con la mejora «Licencia de Sabor».
 const STARTING_UNLOCKED_SNACKS: Array[StringName] = [&"lzy", &"drk"]
+# Casillas de la zona de tazos de la mesa (GDD 5.3). Lo subirá la mejora
+# «Zona de Tazos Ampliada».
+const MAX_TABLE_TAZOS := 8
 
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
@@ -30,6 +33,22 @@ var money: int:
 		return _money
 
 var _money: int = STARTING_MONEY
+
+## Suerte actual (0.0 = 0 %, 0.5 = 50 %). La calculará Stats con mejoras,
+## álbumes y bebidas; por ahora siempre es 0.
+var luck: float:
+	get:
+		return _luck
+
+var _luck: float = 0.0
+
+# Generador aleatorio de las tiradas. Vive aquí (y no en LootSystem) para
+# que más adelante su semilla se pueda guardar con la partida.
+var _rng := RandomNumberGenerator.new()
+
+# Tazos que salieron y esperan sobre la mesa a que el jugador decida
+# (coleccionar, vender o reciclar). Solo ids, en orden de llegada.
+var _table_tazos: Array[StringName] = []
 
 # Un elemento por espacio de la barra rápida. Espacio vacío = {}.
 # Espacio ocupado = {"snack_id": StringName, "count": int}. Solo ids y
@@ -47,6 +66,7 @@ func _ready() -> void:
 		_inventory[i] = {}
 	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
 	restock_machine()
+	_rng.randomize()
 
 
 # --- Dinero ---
@@ -127,6 +147,29 @@ func restock_machine() -> void:
 	for snack_id in _unlocked_snacks:
 		_machine_stock[snack_id] = DAILY_STOCK
 	EventBus.machine_stock_changed.emit()
+
+
+# --- Tazos ---
+
+## Copia de los tazos que esperan sobre la mesa (ids, en orden de llegada).
+func get_table_tazos() -> Array[StringName]:
+	return _table_tazos.duplicate()
+
+
+## Se terminó un snack: tira su premio con LootSystem y deja el tazo sobre
+## la mesa. Devuelve el id del tazo que salió (&"" si el snack no existe).
+## Si la zona de tazos está llena, el tazo igual se guarda (el GDD prevé una
+## pila al borde de la mesa).
+func resolve_finished_snack(snack_id: StringName) -> StringName:
+	var snack := Database.get_snack(snack_id)
+	if snack == null:
+		push_error("GameState: snack desconocido '%s'" % snack_id)
+		return &""
+	var tazo := LootSystem.roll_tazo(snack, _luck, _rng, Database.get_junk_tazo())
+	_table_tazos.append(tazo.id)
+	EventBus.tazo_found.emit(tazo.id)
+	EventBus.table_tazos_changed.emit()
+	return tazo.id
 
 
 # --- Operaciones compuestas ---

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="TazoData" format=3]
+
+[ext_resource type="Script" path="res://data/resources/tazo_data.gd" id="1_tazo"]
+
+[resource]
+script = ExtResource("1_tazo")
+id = &"meh_13"
+code = "MEH-13"
+display_name = "Yellow, Middle Manager"
+series_id = &"meh"
+rarity = 4
+back_text = "Hagamos sinergia."

@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SnackData" format=3]
 
 [ext_resource type="Script" path="res://data/resources/snack_data.gd" id="1_snack"]
+[ext_resource type="Resource" path="res://data/series/drk.tres" id="2_series"]
 
 [resource]
 script = ExtResource("1_snack")
@@ -8,6 +9,7 @@ id = &"drk"
 display_name = "Dorkitos"
 slot_code = "A2"
 chapter = 1
+series = ExtResource("2_series")
 price = 8
 bites = 8
 fullness_per_bite = 2
