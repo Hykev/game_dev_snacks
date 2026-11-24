@@ -17,6 +17,9 @@ enum Mode {
 	PANEL,  ## Un panel 2D abierto (temporal: el de la máquina).
 }
 
+# Cuántos Interactable superpuestos revisa el rayo como máximo por frame.
+const MAX_STACKED_INTERACTABLES := 4
+
 @export_group("Movimiento")
 ## Velocidad al caminar en metros por segundo. Más adelante la calculará
 ## Stats a partir de mejoras como "Piernas de Gelatina".
@@ -153,11 +156,28 @@ func _physics_process(delta: float) -> void:
 ## Avisar únicamente en el cambio evita mandar la misma señal 60 veces por
 ## segundo; el HUD solo se entera cuando hay algo nuevo que mostrar.
 func _update_interaction_target() -> void:
-	var target: Interactable = null
-	if _interact_ray.is_colliding():
-		# Si el rayo toca una pared u otro objeto normal, esto queda en null.
-		target = _interact_ray.get_collider() as Interactable
-	_set_current_interactable(target)
+	# El rayo puede atravesar varios Interactable (son áreas, no paredes):
+	# por ejemplo, un snack caído dentro del área grande de la mesa. Los
+	# recorremos y nos quedamos con el de mayor prioridad. Un objeto sólido
+	# (pared, mueble) detiene la búsqueda, como lo haría la vista.
+	var best: Interactable = null
+	var skipped: Array[CollisionObject3D] = []
+	for i in MAX_STACKED_INTERACTABLES:
+		if not _interact_ray.is_colliding():
+			break
+		var hit := _interact_ray.get_collider() as Interactable
+		if hit == null:
+			break
+		if best == null or hit.interact_priority > best.interact_priority:
+			best = hit
+		# Ignorar este y volver a lanzar el rayo para ver qué hay detrás.
+		_interact_ray.add_exception(hit)
+		skipped.append(hit)
+		_interact_ray.force_raycast_update()
+	# Dejar el rayo como estaba para el próximo frame.
+	for area in skipped:
+		_interact_ray.remove_exception(area)
+	_set_current_interactable(best)
 
 
 func _set_current_interactable(target: Interactable) -> void:

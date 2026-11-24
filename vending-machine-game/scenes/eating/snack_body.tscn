@@ -33,6 +33,7 @@ outline_size = 8
 [node name="PickupInteractable" type="Area3D" parent="."]
 script = ExtResource("2_interactable")
 prompt_text = "Recoger"
+interact_priority = 10
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PickupInteractable"]
 shape = SubResource("BoxShape3D_pickup")

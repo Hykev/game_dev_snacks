@@ -15,6 +15,11 @@ signal interacted(by: Node)
 ## Pasa por tr() en el HUD, así que también sirve como clave de traducción.
 @export var prompt_text: String = "Usar"
 
+## Si el rayo del jugador atraviesa varios Interactable a la vez (un snack
+## caído dentro del área de la mesa), gana el de prioridad más alta.
+## Objetos chicos y puntuales (snacks) deben tener más que zonas grandes.
+@export var interact_priority: int = 0
+
 ## Si es false, el rayo del jugador no lo detecta (no muestra «E · …»).
 ## Sirve para objetos que solo a veces se pueden usar, como un snack que
 ## solo se "recoge" cuando está en el piso.
