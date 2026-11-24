@@ -14,6 +14,14 @@ extends Node
 const STARTING_MONEY := 20
 const INVENTORY_SLOTS := 3
 const MAX_STACK := 3
+# Stock por casilla cada día. Lo subirá la mejora «Resurtido Generoso».
+const DAILY_STOCK := 5
+# Casillas activas al empezar (GDD 5.1: solo A1 y A2). Las demás se
+# activarán con la mejora «Licencia de Sabor».
+const STARTING_UNLOCKED_SNACKS: Array[StringName] = [&"lzy", &"drk"]
+
+## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
+enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
 
 ## Efectivo actual. Se lee desde fuera; para cambiarlo, usar las funciones
 ## de abajo (así siempre se valida y se emite la señal).
@@ -28,11 +36,17 @@ var _money: int = STARTING_MONEY
 # números, para que SaveManager pueda guardarlo tal cual en JSON.
 var _inventory: Array[Dictionary] = []
 
+# Máquina: qué snacks están activos y cuántos quedan hoy de cada uno.
+var _unlocked_snacks: Array[StringName] = []
+var _machine_stock: Dictionary[StringName, int] = {}
+
 
 func _ready() -> void:
 	_inventory.resize(INVENTORY_SLOTS)
 	for i in INVENTORY_SLOTS:
 		_inventory[i] = {}
+	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
+	restock_machine()
 
 
 # --- Dinero ---
@@ -83,20 +97,46 @@ func add_snack(snack_id: StringName) -> bool:
 	return true
 
 
+# --- Máquina expendedora ---
+
+func is_snack_unlocked(snack_id: StringName) -> bool:
+	return snack_id in _unlocked_snacks
+
+
+func get_stock(snack_id: StringName) -> int:
+	return _machine_stock.get(snack_id, 0)
+
+
+## Rellena todas las casillas activas. Por ahora se llama al iniciar; después
+## lo llamará el flujo de "despertar a las 08:00".
+func restock_machine() -> void:
+	for snack_id in _unlocked_snacks:
+		_machine_stock[snack_id] = DAILY_STOCK
+	EventBus.machine_stock_changed.emit()
+
+
 # --- Operaciones compuestas ---
 
-## Compra un snack: valida dinero Y espacio antes de tocar nada, para que
-## nunca se cobre un snack que no cabe en el inventario.
-func buy_snack(snack_id: StringName) -> bool:
+## Compra un snack: valida TODO antes de tocar nada, para que nunca se cobre
+## un snack agotado o que no cabe en el inventario.
+func buy_snack(snack_id: StringName) -> BuyResult:
 	var snack := Database.get_snack(snack_id)
 	if snack == null:
 		push_error("GameState: snack desconocido '%s'" % snack_id)
-		return false
-	if not can_afford(snack.price) or not has_room_for(snack_id):
-		return false
+		return BuyResult.UNKNOWN_SNACK
+	if not is_snack_unlocked(snack_id):
+		return BuyResult.LOCKED
+	if get_stock(snack_id) <= 0:
+		return BuyResult.SOLD_OUT
+	if not can_afford(snack.price):
+		return BuyResult.NO_MONEY
+	if not has_room_for(snack_id):
+		return BuyResult.NO_ROOM
 	spend_money(snack.price)
 	add_snack(snack_id)
-	return true
+	_machine_stock[snack_id] -= 1
+	EventBus.machine_stock_changed.emit()
+	return BuyResult.OK
 
 
 # Primero busca una pila del mismo snack con lugar; si no hay, el primer

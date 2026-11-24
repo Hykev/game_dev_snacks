@@ -21,7 +21,21 @@ signal money_changed(amount: int)
 @warning_ignore("unused_signal")
 signal inventory_changed()
 
-# --- Interacción ---
+## Cambió el stock de alguna casilla de la máquina (compra o reabastecido).
+@warning_ignore("unused_signal")
+signal machine_stock_changed()
+
+# --- Interacción y UI ---
+
+## El jugador usó la máquina expendedora; el panel de compra se abre.
+@warning_ignore("unused_signal")
+signal vending_machine_opened()
+
+## Se abrió (true) o cerró (false) un panel que necesita el ratón (máquina,
+## y después teléfono, álbum…). El jugador lo usa para dejar de moverse y
+## soltar o capturar el ratón.
+@warning_ignore("unused_signal")
+signal modal_ui_changed(is_open: bool)
 
 ## El jugador empezó a mirar algo usable (prompt_text = "Sentarse", "Dormir"…)
 ## o dejó de mirarlo (prompt_text vacío). El HUD la usa para mostrar u ocultar

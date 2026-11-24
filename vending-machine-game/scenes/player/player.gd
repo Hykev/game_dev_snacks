@@ -35,6 +35,10 @@ extends CharacterBody3D
 
 # El Interactable que el jugador está mirando ahora (null si ninguno).
 var _current_interactable: Interactable = null
+# False mientras hay un panel abierto (máquina, después teléfono…): el
+# jugador no camina, no mira y no interactúa. Es el inicio de los "modos"
+# del GDD; cuando haya mesa y baño se volverá un modo con nombre.
+var _controls_enabled := true
 
 
 func _ready() -> void:
@@ -43,9 +47,25 @@ func _ready() -> void:
 	# El rayo nace dentro de la cápsula del jugador: lo excluimos para que
 	# nunca se detecte a sí mismo.
 	_interact_ray.add_exception(self)
+	EventBus.modal_ui_changed.connect(_on_modal_ui_changed)
+
+
+## Un panel se abrió o cerró. El ratón se maneja SOLO aquí, en un lugar,
+## para que dos sistemas nunca peleen por capturarlo o soltarlo.
+func _on_modal_ui_changed(is_open: bool) -> void:
+	_controls_enabled = not is_open
+	if is_open:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		# Ocultar «E · Comprar» mientras el panel está abierto.
+		_set_current_interactable(null)
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _controls_enabled:
+		return
+
 	# Mirar con el ratón: el movimiento del ratón no es una tecla, por eso se
 	# lee como evento. Con control se agregarán acciones para el stick.
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -77,7 +97,9 @@ func _physics_process(delta: float) -> void:
 
 	# get_vector combina las 4 acciones en un vector 2D (x = lados,
 	# y = adelante/atrás) y ya maneja la diagonal para no ir más rápido.
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	var input_dir := Vector2.ZERO
+	if _controls_enabled:
+		input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	# Convertimos ese vector a la orientación actual del jugador: "adelante"
 	# es hacia donde mira el cuerpo, no siempre el mismo eje del mundo.
 	var direction := transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)
@@ -92,7 +114,8 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, target_velocity.z, acceleration * delta)
 
 	move_and_slide()
-	_update_interaction_target()
+	if _controls_enabled:
+		_update_interaction_target()
 
 
 ## Revisa qué toca el rayo y, solo si cambió, lo anuncia por EventBus.
@@ -103,7 +126,10 @@ func _update_interaction_target() -> void:
 	if _interact_ray.is_colliding():
 		# Si el rayo toca una pared u otro objeto normal, esto queda en null.
 		target = _interact_ray.get_collider() as Interactable
+	_set_current_interactable(target)
 
+
+func _set_current_interactable(target: Interactable) -> void:
 	if target == _current_interactable:
 		return
 	_current_interactable = target
