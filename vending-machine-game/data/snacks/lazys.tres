@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SnackData" format=3]
+
+[ext_resource type="Script" path="res://data/resources/snack_data.gd" id="1_snack"]
+
+[resource]
+script = ExtResource("1_snack")
+id = &"lzy"
+display_name = "Lazy's"
+slot_code = "A1"
+chapter = 1
+price = 5
+bites = 8
+fullness_per_bite = 2
+package_type = 0

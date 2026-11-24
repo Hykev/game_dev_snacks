@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SnackData" format=3]
+
+[ext_resource type="Script" path="res://data/resources/snack_data.gd" id="1_snack"]
+
+[resource]
+script = ExtResource("1_snack")
+id = &"meh"
+display_name = "Meh&Meh's"
+slot_code = "A3"
+chapter = 1
+price = 12
+bites = 12
+fullness_per_bite = 1
+package_type = 0
