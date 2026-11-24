@@ -63,7 +63,7 @@ func _ready() -> void:
 func _refresh_shipping() -> void:
 	var parts: PackedStringArray = []
 	if GameState.get_shipping_box_count() > 0:
-		parts.append(tr("Caja: %d ($%d)") % [GameState.get_shipping_box_count(), GameState.get_shipping_box_total()])
+		parts.append(tr("Caja: %d/%d ($%d)") % [GameState.get_shipping_box_count(), GameState.SHIPPING_BOX_CAPACITY, GameState.get_shipping_box_total()])
 	if GameState.get_door_money() > 0:
 		parts.append(tr("Dinero en la puerta: $%d") % GameState.get_door_money())
 	_shipping_label.text = "\n".join(parts)
@@ -101,13 +101,14 @@ func _refresh_clock() -> void:
 	_clock_label.text = tr("Día %d · %s") % [GameState.day, TimeManager.get_clock_text()]
 
 
-## Barra de llenura: verde, naranja desde 80 y roja al tope.
+## Barra de llenura: verde, naranja desde 80 y roja mientras esté «lleno»
+## (desde el tope hasta vaciarse un poco; lo decide GameState).
 ## (El gruñido del estómago llegará con el AudioManager.)
 func _on_fullness_changed(current: float, maximum: float) -> void:
 	_fullness_bar.max_value = maximum
 	_fullness_bar.value = current
 	var color := FULLNESS_COLOR_OK
-	if current >= maximum:
+	if GameState.is_full():
 		color = FULLNESS_COLOR_FULL
 	elif current >= FULLNESS_WARNING:
 		color = FULLNESS_COLOR_WARNING

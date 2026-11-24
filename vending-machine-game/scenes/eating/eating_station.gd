@@ -60,6 +60,8 @@ var _is_card_open := false
 
 func _ready() -> void:
 	_seat_interactable.interacted.connect(_on_seat_interacted)
+	EventBus.shipping_changed.connect(_refresh_seat_prompt)
+	_refresh_seat_prompt()
 	EventBus.player_mode_changed.connect(_on_player_mode_changed)
 	_table_surface.body_entered.connect(_on_table_surface_body_changed.bind(true))
 	_table_surface.body_exited.connect(_on_table_surface_body_changed.bind(false))
@@ -121,8 +123,21 @@ func _on_snack_pickup_requested(body: SnackBody) -> void:
 		body.queue_free()
 
 
+## Si el jugador trae la caja de envío, la primera E la deja junto a la
+## mesa; la siguiente ya lo sienta. Así no hay que sentarse para devolverla.
 func _on_seat_interacted(_by: Node) -> void:
+	if GameState.get_box_location() == GameState.BoxLocation.INVENTORY:
+		GameState.put_box_on_table()
+		return
 	EventBus.table_sit_requested.emit(_view_camera, _stand_point)
+
+
+# El texto de la E cambia según si el jugador trae la caja.
+func _refresh_seat_prompt() -> void:
+	if GameState.get_box_location() == GameState.BoxLocation.INVENTORY:
+		_seat_interactable.prompt_text = tr("Dejar caja")
+	else:
+		_seat_interactable.prompt_text = tr("Sentarse")
 
 
 func _on_player_mode_changed(mode: int) -> void:
@@ -325,6 +340,7 @@ func _eat_from(body: SnackBody) -> void:
 		return
 	# GDD 5.4: con la llenura al tope no se puede comer; hay que ir al baño.
 	if not GameState.can_eat():
+		EventBus.notification_requested.emit(tr("Ya no me cabe ni un chisme. Necesito ir al baño."))
 		return
 	GameState.add_fullness(body.snack.fullness_per_bite)
 	var finished := body.take_bite()

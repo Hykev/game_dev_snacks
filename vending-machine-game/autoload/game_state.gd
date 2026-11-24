@@ -24,6 +24,11 @@ const STARTING_UNLOCKED_SNACKS: Array[StringName] = [&"lzy", &"drk"]
 const MAX_TABLE_TAZOS := 8
 # Llenura máxima (GDD 5.4). La subirá la mejora «Estómago Elástico».
 const MAX_FULLNESS := 100.0
+# Al llegar al tope quedas «lleno» (no comes, caminas lento) hasta bajar de
+# este valor. Sin este margen, la digestión bajaba 100 → 99,97 al instante y
+# el jugador dejaba de estar lleno sin ir al baño. TEMPORAL: ajustar con
+# BalanceConfig (con la digestión actual, 100 → 90 tarda 5 h de juego).
+const FULL_RELEASE_FULLNESS := 90.0
 # Digestión pasiva: −1 de llenura cada 30 min de juego (GDD 5.4), lenta a
 # propósito para dejar margen de mejora. La
 # mejorará «Metabolismo de Colibrí».
@@ -35,6 +40,9 @@ const FAINT_MONEY_LOSS := 0.10
 enum BoxLocation { TABLE, INVENTORY, DOOR }
 ## Cómo se marca la caja dentro de un espacio del inventario.
 const SHIPPING_BOX_ITEM := &"shipping_box"
+# Cuántos tazos caben en la caja de envío. Pequeño a propósito: obliga a ir
+# a la puerta seguido. TEMPORAL: lo subirá una rama de mejoras (Stats).
+const SHIPPING_BOX_CAPACITY := 5
 
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
@@ -71,6 +79,9 @@ var fullness: float:
 		return _fullness
 
 var _fullness: float = 0.0
+# true desde que la llenura llega al tope hasta que baja de
+# FULL_RELEASE_FULLNESS (por el baño o la digestión).
+var _is_stuffed := false
 
 ## Suerte actual (0.0 = 0 %, 0.5 = 50 %). La calculará Stats con mejoras,
 ## álbumes y bebidas; por ahora siempre es 0.
@@ -131,6 +142,7 @@ func reset_new_game() -> void:
 	_shines = 0
 	_day = 1
 	_fullness = 0.0
+	_is_stuffed = false
 	_luck = 0.0
 	_inventory.clear()
 	_inventory.resize(INVENTORY_SLOTS)
@@ -233,6 +245,7 @@ func get_save_data() -> Dictionary:
 		"shines": _shines,
 		"day": _day,
 		"fullness": _fullness,
+		"stuffed": _is_stuffed,
 		"inventory": _inventory.duplicate(true),
 		"collection": _collection.keys(),
 		"table_tazos": _table_tazos.duplicate(true),
@@ -256,6 +269,8 @@ func apply_save_data(data: Dictionary) -> void:
 	_shines = int(data.get("shines", 0))
 	_day = int(data.get("day", 1))
 	_fullness = clampf(float(data.get("fullness", 0.0)), 0.0, MAX_FULLNESS)
+	# Partidas viejas no traen "stuffed": se deduce de la llenura.
+	_is_stuffed = bool(data.get("stuffed", _fullness >= MAX_FULLNESS))
 
 	_inventory.clear()
 	for slot: Dictionary in data.get("inventory", []):
@@ -366,13 +381,15 @@ func add_money(amount: int) -> void:
 
 # --- Llenura ---
 
-## GDD 5.4: al llegar al tope ya no se puede comer.
+## GDD 5.4: al llegar al tope ya no se puede comer (hasta vaciarse un poco).
 func can_eat() -> bool:
-	return _fullness < MAX_FULLNESS
+	return not _is_stuffed
 
 
+## ¿Está «lleno»? (no come y camina a media velocidad). Ver
+## FULL_RELEASE_FULLNESS: no basta con bajar de 100 para dejar de estarlo.
 func is_full() -> bool:
-	return _fullness >= MAX_FULLNESS
+	return _is_stuffed
 
 
 ## Suma llenura (un bocado). Nunca pasa del máximo.
@@ -390,6 +407,12 @@ func _set_fullness(value: float) -> void:
 	if is_equal_approx(clamped, _fullness):
 		return
 	_fullness = clamped
+	# Primero se actualiza «lleno», para que quien escuche la señal ya lea
+	# el valor nuevo con is_full().
+	if _fullness >= MAX_FULLNESS:
+		_is_stuffed = true
+	elif _fullness < FULL_RELEASE_FULLNESS:
+		_is_stuffed = false
 	EventBus.fullness_changed.emit(_fullness, MAX_FULLNESS)
 
 
@@ -466,6 +489,15 @@ func get_stock(snack_id: StringName) -> int:
 	return _machine_stock.get(snack_id, 0)
 
 
+## ¿Ya no queda nada en las casillas activas? (DayCycle lo usa: con la
+## máquina vacía se puede dormir antes de la noche).
+func is_machine_empty() -> bool:
+	for snack_id in _unlocked_snacks:
+		if get_stock(snack_id) > 0:
+			return false
+	return true
+
+
 ## Rellena todas las casillas activas. Por ahora se llama al iniciar; después
 ## lo llamará el flujo de "despertar a las 08:00".
 func restock_machine() -> void:
@@ -537,9 +569,13 @@ func get_box_location() -> BoxLocation:
 	return _box_location
 
 
-## Solo se empaca con la caja junto a la mesa.
+## Solo se empaca con la caja junto a la mesa y con lugar dentro.
 func can_pack() -> bool:
-	return _box_location == BoxLocation.TABLE
+	return _box_location == BoxLocation.TABLE and not is_box_full()
+
+
+func is_box_full() -> bool:
+	return _shipping_box.size() >= SHIPPING_BOX_CAPACITY
 
 
 func get_shipping_box_count() -> int:

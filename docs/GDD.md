@@ -141,7 +141,7 @@ El centro del loop es comer; el baño es la pausa obligada que las mejoras van a
 4. **Decidir cada tazo:** coleccionar (álbum), vender (caja de envío) o reciclar (Brillos).
 5. **Baño:** cuando la llenura llega al tope ya no puedes comer; vas al baño y esperas unos segundos.
 6. **Vender y mejorar:** desde el teléfono publicas en el mercado, el repartidor recoge y te deposita; compras mejoras o abonas a la deuda.
-7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día cuando tú quieras.
+7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día: desde las 22:00 siempre; antes, solo si ya vaciaste la máquina (y pide confirmación). Así nadie puede saltarse días enteros durmiendo y perder de golpe.
 8. **Resumen del día:** pantalla con lo comido, tazos encontrados, ganado, gastado y días para el próximo pago. Autoguardado.
 
 ### Tiempo
@@ -221,7 +221,7 @@ Al sentarse, la cámara pasa a una vista fija sobre la mesa y el ratón se liber
 
 ### 5.4 Llenura y baño
 
-- Barra de **Llenura** 0–100. Cada bocado suma según el snack. Al llegar a 100 no puedes comer y caminas a la mitad de velocidad (50 %).
+- Barra de **Llenura** 0–100. Cada bocado suma según el snack. Al llegar a 100 quedas **lleno**: no puedes comer y caminas a la mitad de velocidad (50 %) hasta que la llenura baje de 90 (el baño lo hace rápido; la digestión tarda unas 5 h de juego).
 - Digestión pasiva: baja 1 punto cada 30 minutos de juego (~36 por día completo; mejorable con «Metabolismo de Colibrí»). Dormir no vacía la llenura.
 - **Baño:** sentarte vacía la barra a velocidad constante: 15 s de 100 a 0, así que con menos llenura tardas menos (50 → 7,5 s). Levantarte con Q lo interrumpe y al volver sigue al mismo ritmo. «Tripas Express» baja el tiempo total (−1,5 s por nivel, hasta 7,5 s) e «Inodoro Inteligente» lo vuelve instantáneo. Sentado, la cámara baja a la altura de los ojos de alguien sentado. Mientras esperas puedes leer el «periódico»: noticias absurdas y alguna pista de easter egg (decorativo).
 - **Bebidas** de la máquina (desbloqueables) dan efectos temporales: digestión rápida, velocidad, suerte.
@@ -261,15 +261,15 @@ Cada snack terminado tira primero si trae premio (65 % base) y, si sí, qué rar
 Cada tazo que sale se acomoda en la zona de tazos (izquierda de la mesa). Al hacer clic en uno se abre su carta con tres botones (también con teclas, con el ratón encima):
 
 - **C · Coleccionar:** solo si no lo tienes. Va al álbum de su serie en la repisa (animación corta). Los repetidos muestran el botón en gris.
-- **V · Vender:** va a la caja de envío junto a la puerta.
+- **V · Vender (Empacar):** va a la caja de envío, que empieza junto a la mesa. La caja tiene capacidad limitada (5 tazos al inicio; la subirá una rama de mejoras).
 - **R · Reciclar:** se convierte en Brillos (Común 1, Poco común 3, Raro 10, Épico 40, Legendario 150). Reciclar un Corrupto lo repara y da 100.
 
 **Álbumes:** uno por serie (16) en las repisas junto a la mesa, cada uno con 15 casillas + 1 Mal impreso + 1 Corrupto. Además, un álbum de Fragmentos (12) y uno de **Secretos** con 12 casillas «???» para los tazos de los easter eggs. Completar una página da +1 % de suerte; completar un álbum da un bono permanente propio de esa serie (ej. +10 % al valor de venta de esa marca). Es la razón para coleccionar en vez de vender.
 
 **Venta:**
 
-1. Al inicio hay que llevar la caja a la puerta (una interacción) y publicar desde la app del mercado.
-2. El repartidor pasa cada 2 horas de juego; al recoger, el dinero se deposita con una notificación.
+1. Al inicio hay que llevar la caja a la puerta: se recoge con E (ocupa un espacio del inventario) y se deja con E junto a la puerta. De vuelta, la primera E en la mesa deja la caja en su lugar y la segunda te sienta. Más adelante también se publicará desde la app del mercado.
+2. El repartidor pasa cada 2 horas de juego; se lleva los tazos y deja el dinero en la bandeja de la puerta, con una notificación. La caja vacía se queda en la puerta.
 3. Mejoras: recolección desde la mesa, repartidor cada hora, venta instantánea.
 
 **Mercado (simple):** cada tazo tiene un precio fijo (rareza × precio del snack × variante × bonos) menos la comisión de TazoBay. Sin demanda diaria, sin saturación y sin pedidos: vender siempre da lo mismo, así la decisión es solo coleccionar, vender o reciclar.
@@ -491,7 +491,7 @@ Todo ocurre en un apartamento de una habitación con 11 zonas interactuables. To
 | Mesa + sofá | E: sentarse | Estación de comer: zona de comer a la derecha, zona de tazos a la izquierda | La zona donde más tiempo se pasa: la que más detalle merece |
 | Repisas de álbumes | E: abrir álbum | Ver y completar colecciones | Junto a la mesa; los álbumes completos brillan |
 | Baño (inodoro) | E: sentarse | Vaciar la llenura | Periódico decorativo con chistes y pistas de easter eggs |
-| Cama | E: dormir | Termina el día, resumen y guardado | Pide confirmación si es antes de las 22:00 |
+| Cama | E: dormir | Termina el día, resumen y guardado | Desde las 22:00; antes solo con la máquina vacía y con confirmación |
 | Mesa de noche | E: tomar | Teléfono (solo en el tutorial; después va en el inventario permanente) | Despertador decorativo con la hora |
 | TV | E: cambiar canal | Decorativa: comerciales de snacks, canales absurdos y easter eggs | Encendida de fondo da ambiente sonoro; no afecta la economía |
 | Puerta principal | E: dejar caja | Caja de envío de tazos vendidos; notas del repartidor | Mensajes de BanCruel deslizados bajo la puerta |

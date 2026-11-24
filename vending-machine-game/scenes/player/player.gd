@@ -119,8 +119,9 @@ func _on_sleepy_changed(is_sleepy: bool) -> void:
 	_sleepy_speed_multiplier = SLEEPY_SPEED_MULTIPLIER if is_sleepy else 1.0
 
 
-func _on_fullness_changed(current: float, maximum: float) -> void:
-	_fullness_speed_multiplier = FULL_SPEED_MULTIPLIER if current >= maximum else 1.0
+## «Lleno» lo decide GameState (tiene margen: no basta con bajar de 100).
+func _on_fullness_changed(_current: float, _maximum: float) -> void:
+	_fullness_speed_multiplier = FULL_SPEED_MULTIPLIER if GameState.is_full() else 1.0
 
 
 ## El baño terminó solo: el jugador se levanta (si seguía sentado).
@@ -229,6 +230,12 @@ func _handle_walk_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		if _current_interactable != null:
 			_current_interactable.interact(self)
+			# Usarlo pudo cambiar su texto («Dejar caja» → «Sentarse», la
+			# puerta ya sin dinero): se vuelve a mostrar sin esperar a que el
+			# jugador mire a otro lado. Solo si sigue caminando (sentarse ya
+			# oculta el texto).
+			if _mode == Mode.WALK and is_instance_valid(_current_interactable):
+				EventBus.interaction_prompt_changed.emit(_current_interactable.prompt_text)
 
 	# TEMPORAL hasta que exista el menú de pausa: Esc (acción integrada
 	# "ui_cancel") suelta el ratón, y un clic lo vuelve a capturar.

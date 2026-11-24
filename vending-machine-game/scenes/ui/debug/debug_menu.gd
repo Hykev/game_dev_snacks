@@ -63,6 +63,7 @@ func _build_buttons() -> void:
 		["Guardar ahora", func() -> void: SaveManager.save_game()],
 		["Volver al último guardado", func() -> void: SaveManager.reload_saved_game()],
 		["Nueva partida (borra el guardado)", func() -> void: SaveManager.new_game()],
+		["Borrar TODOS los guardados y cerrar", func() -> void: SaveManager.delete_all_saves_and_quit()],
 	]
 	for tool: Array in tools:
 		var button := Button.new()

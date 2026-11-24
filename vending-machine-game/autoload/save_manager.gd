@@ -20,6 +20,9 @@ const SLOT_PATH := "user://save_slot_%d.json"
 ## Ranura en uso (1 a SLOT_COUNT).
 var current_slot := 1
 
+# true tras borrar todo: al cerrar la ventana ya no se guarda.
+var _skip_save_on_close := false
+
 
 func _ready() -> void:
 	# Corre después de GameState y TimeManager (orden de autoloads), así que
@@ -31,7 +34,7 @@ func _ready() -> void:
 ## Al cerrar la ventana se guarda (GDD 14: salir a mitad del día guarda el
 ## estado). Godot avisa con esta notificación antes de cerrar.
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and not _skip_save_on_close:
 		save_game()
 
 
@@ -105,6 +108,17 @@ func new_game() -> void:
 	TimeManager.set_paused(false)
 	TimeManager.start_day()
 	get_tree().reload_current_scene()
+
+
+## Depuración: borra los archivos de TODAS las ranuras y cierra el juego sin
+## guardar. Al abrirlo de nuevo empieza de cero (sin tener que buscar los
+## archivos en %APPDATA%). Se cierra porque, si siguiera abierto, al salir
+## se volvería a guardar la partida en curso.
+func delete_all_saves_and_quit() -> void:
+	for slot in range(1, SLOT_COUNT + 1):
+		delete_save(slot)
+	_skip_save_on_close = true
+	get_tree().quit()
 
 
 ## Vuelve a cargar la partida guardada y recarga la escena (depuración: "volver

@@ -78,11 +78,14 @@ func open(index: int) -> void:
 	_collect_button.disabled = not can_collect
 
 	# Empacar = mandarlo a la caja de envío. Solo si la caja está junto a
-	# la mesa; si no, el botón queda en gris y se explica por qué.
+	# la mesa y tiene lugar; si no, el botón queda en gris y se explica por qué.
 	_pack_button.text = tr("Empacar ($%d)") % GameState.get_table_tazo_sale_price(index)
 	_pack_button.disabled = not GameState.can_pack()
-	if not GameState.can_pack():
+	if GameState.get_box_location() != GameState.BoxLocation.TABLE:
 		_status_label.text += "\n" + tr("La caja de envío no está junto a la mesa")
+	elif GameState.is_box_full():
+		_status_label.text += "\n" + tr("La caja de envío está llena (%d/%d): llévala a la puerta") % [
+			GameState.get_shipping_box_count(), GameState.SHIPPING_BOX_CAPACITY]
 	_recycle_button.text = tr("Reciclar (✦%d)") % Economy.get_recycle_shines(tazo)
 	_root.show()
 

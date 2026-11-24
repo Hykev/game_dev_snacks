@@ -30,7 +30,7 @@ func _refresh() -> void:
 		GameState.BoxLocation.INVENTORY:
 			_place(null)
 	var count := GameState.get_shipping_box_count()
-	_label.text = tr("Caja de envío (%d)") % count
+	_label.text = tr("Caja de envío (%d/%d)") % [count, GameState.SHIPPING_BOX_CAPACITY]
 	_interactable.prompt_text = tr("Recoger caja (%d)") % count
 
 
