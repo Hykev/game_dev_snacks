@@ -118,16 +118,43 @@ var _machine_stock: Dictionary[StringName, int] = {}
 
 
 func _ready() -> void:
-	_inventory.resize(INVENTORY_SLOTS)
-	for i in INVENTORY_SLOTS:
-		_inventory[i] = {}
-	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
-	restock_machine()
-	_rng.randomize()
-	_reset_day_stats()
+	reset_new_game()
 	# La digestión es una regla del estado del jugador: GameState escucha el
 	# paso del tiempo y baja su propia llenura.
 	EventBus.game_minutes_passed.connect(_on_game_minutes_passed)
+
+
+## Deja todo como al empezar una partida nueva. Lo usa el arranque del juego
+## y "Nueva partida" (menú de depuración y, más adelante, el menú principal).
+func reset_new_game() -> void:
+	_money = STARTING_MONEY
+	_shines = 0
+	_day = 1
+	_fullness = 0.0
+	_luck = 0.0
+	_inventory.clear()
+	_inventory.resize(INVENTORY_SLOTS)
+	_collection.clear()
+	_table_tazos.clear()
+	_loose_snacks.clear()
+	_shipping_box.clear()
+	_box_location = BoxLocation.TABLE
+	_door_money = 0
+	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
+	_machine_stock.clear()
+	_rng.randomize()
+	_reset_day_stats()
+	restock_machine()
+	_emit_all_changed()
+
+
+## Suma Brillos (por ahora solo el menú de depuración; reciclar usa su
+## propia operación).
+func add_shines(amount: int) -> void:
+	if amount <= 0:
+		return
+	_shines += amount
+	EventBus.shines_changed.emit(_shines)
 
 
 func _on_game_minutes_passed(minutes: int) -> void:

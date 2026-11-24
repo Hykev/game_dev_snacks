@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://scenes/world/day_cycle.gd" id="12_day_cycle"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/front_door.tscn" id="13_door"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/shipping_box.tscn" id="14_box"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug/debug_menu.tscn" id="15_debug"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -79,3 +80,5 @@ wake_point = NodePath("../Bed/WakePoint")
 [node name="TazoCard" parent="." instance=ExtResource("8_tazo_card")]
 
 [node name="DayScreens" parent="." instance=ExtResource("11_day_screens")]
+
+[node name="DebugMenu" parent="." instance=ExtResource("15_debug")]

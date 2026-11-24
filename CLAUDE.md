@@ -24,6 +24,8 @@ El GDD completo está en `docs/GDD.md`; este archivo resume lo que importa para 
 6. **Tipado estático siempre**, nombres de código en inglés, comentarios en español, una clase por archivo, `class_name` en lo reutilizable.
 7. **Entrada solo por acciones del Input Map** (nunca teclas fijas en código). La mesa lee una "posición de cursor", no el ratón directo, para poder soportar control/Steam Deck.
 8. Referencias a nodos con `@onready` o `%NombreUnico`; nunca `get_node()` dentro de bucles. Nada de `load()` a mitad del juego.
+9. **Un solo reloj.** Todo lo que dependa del tiempo de juego escucha las señales de `TimeManager` (`clock_changed`, `game_minutes_passed`…); nunca timers propios en minutos de juego. Así pausar, acelerar (`time_scale`) o adelantar (`advance_minutes`) el reloj funciona en todo el juego para probar.
+10. **Probar sin jugar.** Toda herramienta nueva de prueba va al menú de depuración (F1, `scenes/ui/debug/`, solo en debug) y usa las operaciones públicas de los autoloads. Las pruebas automáticas no tocan la ranura 1 (usar `SaveManager.current_slot = 3`).
 
 ## Autoloads (6)
 

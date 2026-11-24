@@ -83,6 +83,8 @@ func load_game(slot: int) -> bool:
 	data = _migrate(data, version)
 	current_slot = slot
 	GameState.apply_save_data(data["game"])
+	# El reloj arranca (por si estaba detenido) y se pone en la hora guardada.
+	TimeManager.start_day()
 	TimeManager.set_minute(int(data.get("clock_minute", TimeManager.DAY_START_MINUTE)))
 	EventBus.game_loaded.emit(slot)
 	return true
@@ -91,6 +93,25 @@ func load_game(slot: int) -> bool:
 func delete_save(slot: int) -> void:
 	if has_save(slot):
 		DirAccess.remove_absolute(SLOT_PATH % slot)
+
+
+## Empieza una partida nueva en la ranura actual: borra su archivo, deja el
+## estado como al inicio, reinicia el reloj y recarga la escena para que
+## todo se cree de nuevo (snacks en la mesa, fichas, posición del jugador).
+func new_game() -> void:
+	delete_save(current_slot)
+	GameState.reset_new_game()
+	TimeManager.time_scale = 1.0
+	TimeManager.set_paused(false)
+	TimeManager.start_day()
+	get_tree().reload_current_scene()
+
+
+## Vuelve a cargar la partida guardada y recarga la escena (depuración: "volver
+## al último guardado" para repetir una prueba).
+func reload_saved_game() -> void:
+	if has_save(current_slot) and load_game(current_slot):
+		get_tree().reload_current_scene()
 
 
 ## Convierte datos de versiones anteriores a la actual. Hoy solo existe la

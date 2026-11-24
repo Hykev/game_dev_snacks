@@ -29,6 +29,10 @@ var _minute_of_day: float = DAY_START_MINUTE
 var _running := false
 var _paused := false
 
+## Multiplicador de velocidad del reloj (1 = normal). Solo para pruebas:
+## el menú de depuración lo pone en 10 o 60 para recorrer el día rápido.
+var time_scale: float = 1.0
+
 
 func _ready() -> void:
 	# Por ahora la partida empieza directo en el día 1 a las 08:00. Cuando
@@ -66,6 +70,10 @@ func is_running() -> bool:
 	return _running and not _paused
 
 
+func is_paused() -> bool:
+	return _paused
+
+
 func get_whole_minute() -> int:
 	return floori(_minute_of_day)
 
@@ -79,20 +87,31 @@ func get_clock_text() -> String:
 func _process(delta: float) -> void:
 	if not is_running():
 		return
+	_advance(GAME_MINUTES_PER_SECOND * time_scale * delta)
+
+
+## Adelanta el reloj `minutes` minutos de juego de golpe (depuración y,
+## más adelante, efectos como "dormir una siesta"). Todo lo que depende del
+## tiempo se entera igual que si hubieran pasado normalmente.
+func advance_minutes(minutes: int) -> void:
+	if _running:
+		_advance(minutes)
+
+
+# Avanza el reloj y avisa UNA VEZ POR CADA MINUTO entero que se cruza. Así,
+# aunque un frame salte varios minutos (reloj acelerado o adelantado), nada
+# se pierde: el repartidor sigue viendo su hora exacta, la digestión suma
+# todo y el sueño/desmayo se disparan en su minuto.
+func _advance(game_minutes: float) -> void:
 	var previous_minute := get_whole_minute()
-	_minute_of_day = minf(_minute_of_day + GAME_MINUTES_PER_SECOND * delta, FAINT_MINUTE)
+	_minute_of_day = minf(_minute_of_day + game_minutes, FAINT_MINUTE)
 	var current_minute := get_whole_minute()
-	if current_minute == previous_minute:
-		return
-
-	# Pasó al menos un minuto entero: avisar cuántos (para la digestión).
-	EventBus.game_minutes_passed.emit(current_minute - previous_minute)
-	EventBus.clock_changed.emit(current_minute)
-
-	# Horas clave: se revisa si se CRUZÓ el umbral, por si un frame largo se
-	# saltó el minuto exacto.
-	if previous_minute < SLEEPY_MINUTE and current_minute >= SLEEPY_MINUTE:
-		EventBus.sleepy_changed.emit(true)
-	if current_minute >= FAINT_MINUTE:
-		stop()
-		EventBus.faint_time_reached.emit()
+	for minute in range(previous_minute + 1, current_minute + 1):
+		EventBus.game_minutes_passed.emit(1)
+		EventBus.clock_changed.emit(minute)
+		if minute == SLEEPY_MINUTE:
+			EventBus.sleepy_changed.emit(true)
+		if minute >= FAINT_MINUTE:
+			stop()
+			EventBus.faint_time_reached.emit()
+			return

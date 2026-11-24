@@ -5,7 +5,7 @@ Lo marcado **TEMPORAL** en el código (comentarios `TEMPORAL:`) está explicado 
 
 ## Estado actual (prototipo gris)
 
-Hecho: pasos 1–7 (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente, guardado/carga en JSON, caja de envío con repartidor cada 2 h y avisos en pantalla).
+Hecho: pasos 1–7 (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente, guardado/carga en JSON, caja de envío física (empacar en la mesa → llevarla en el inventario → puerta) con repartidor cada 2 h que deja el dinero en la bandeja, avisos en pantalla y menú de depuración F1 con control del reloj).
 El loop completo comprar → comer → tazo → vender → baño → dormir → guardar funciona en `scenes/world/test_room.tscn`. El fin del día lo coordina `DayCycle` (scenes/world/day_cycle.gd).
 
 ## Siguiente: máquina 3D (último paso del prototipo gris)
@@ -16,9 +16,10 @@ El loop completo comprar → comer → tazo → vender → baño → dormir → 
 ## Guardado y envíos (pendientes menores)
 
 - `meta.json` para los Ecos (cuando existan) y menú principal con 3 ranuras (hoy siempre ranura 1, se carga sola al iniciar).
-- Para empezar de cero: borrar `%APPDATA%\Godot\app_userdata\vending-machine-game\save_slot_1.json` (falta un menú de depuración F1 que lo haga).
+- Para empezar de cero: menú de depuración (F1) → «Nueva partida». También se puede borrar `%APPDATA%\Godot\app_userdata\vending-machine-game\save_slot_1.json`.
 - Al cargar, el jugador aparece en su posición inicial de la escena (no se guardan posiciones).
-- Envíos: falta publicar desde la app TazoBay del teléfono, las notas del repartidor y las mejoras (Recolección a Domicilio, Repartidor Puntual, Venta Instantánea).
+- Envíos: falta la bandeja animada de la puerta, publicar desde la app TazoBay del teléfono, las notas del repartidor y las mejoras (Recolección a Domicilio, Repartidor Puntual, Venta Instantánea).
+- Menú de depuración: falta simular N snacks con estadísticas y forzar rareza. Abrirlo sentado a la mesa te levanta al cerrarlo (usa el modo PANEL).
 - Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor pasa en horas pares desde las 08:00 (10:00, 12:00…).
 
 ## Después de la máquina 3D
