@@ -37,6 +37,21 @@ signal vending_machine_opened()
 @warning_ignore("unused_signal")
 signal modal_ui_changed(is_open: bool)
 
+# --- Comer (las emite la mesa) ---
+
+## Se abrió un snack sobre la mesa (lo usarán el tutorial y el audio).
+@warning_ignore("unused_signal")
+signal snack_opened(snack_id: StringName)
+
+## Se dio un bocado. `bites_left` = bocados que quedan en ese snack.
+## La llenura (paso 6) escuchará esta señal.
+@warning_ignore("unused_signal")
+signal snack_bitten(snack_id: StringName, bites_left: int)
+
+## Se terminó un snack. Aquí se tirará el premio (LootSystem) más adelante.
+@warning_ignore("unused_signal")
+signal snack_finished(snack_id: StringName)
+
 # --- Jugador y estaciones ---
 
 ## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa
