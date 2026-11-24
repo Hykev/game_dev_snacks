@@ -20,8 +20,12 @@ enum Mode {
 
 # Cuántos Interactable superpuestos revisa el rayo como máximo por frame.
 const MAX_STACKED_INTERACTABLES := 4
-# GDD 5.4: con la llenura al tope se camina 20 % más lento.
-const FULL_SPEED_MULTIPLIER := 0.8
+# GDD 5.4: con la llenura al tope se camina a la mitad de velocidad.
+const FULL_SPEED_MULTIPLIER := 0.5
+# Altura de los ojos sentado (en el baño) y duración de la animación al
+# sentarse o pararse. La altura de pie se lee de la escena al iniciar.
+const SEATED_HEAD_HEIGHT := 1.1
+const SIT_ANIMATION_TIME := 0.3
 
 @export_group("Movimiento")
 ## Velocidad al caminar en metros por segundo. Más adelante la calculará
@@ -54,12 +58,16 @@ var _current_interactable: Interactable = null
 # Multiplicador de velocidad por llenura. Se actualiza solo cuando llega la
 # señal fullness_changed, no se pregunta a GameState cada frame.
 var _fullness_speed_multiplier := 1.0
+# Altura de la cabeza de pie (la de la escena) y animación en curso.
+var _standing_head_height := 0.0
+var _head_tween: Tween
 
 
 func _ready() -> void:
 	# El rayo nace dentro de la cápsula del jugador: lo excluimos para que
 	# nunca se detecte a sí mismo.
 	_interact_ray.add_exception(self)
+	_standing_head_height = _head.position.y
 	EventBus.modal_ui_changed.connect(_on_modal_ui_changed)
 	EventBus.table_sit_requested.connect(_on_table_sit_requested)
 	EventBus.toilet_sit_requested.connect(_set_mode.bind(Mode.BATHROOM))
@@ -95,10 +103,26 @@ func _set_mode(new_mode: Mode, view_camera: Camera3D = null) -> void:
 			# Misma cámara: solo se queda quieto mirando el "periódico".
 			_camera.make_current()
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# En el baño la cabeza baja como si estuviera sentado; en los demás modos
+	# vuelve a la altura de pie.
+	_animate_head_height(SEATED_HEAD_HEIGHT if new_mode == Mode.BATHROOM else _standing_head_height)
 	# Fuera de CAMINAR no se interactúa con el mundo: ocultar «E · …».
 	if new_mode != Mode.WALK:
 		_set_current_interactable(null)
 	EventBus.player_mode_changed.emit(new_mode)
+
+
+## Mueve la cabeza (y con ella la cámara) a otra altura con una animación
+## corta. Si ya está ahí, no hace nada.
+func _animate_head_height(target_height: float) -> void:
+	if is_equal_approx(_head.position.y, target_height):
+		return
+	# Cortar una animación anterior para que no peleen entre sí.
+	if _head_tween != null and _head_tween.is_valid():
+		_head_tween.kill()
+	_head_tween = create_tween()
+	_head_tween.tween_property(_head, "position:y", target_height, SIT_ANIMATION_TIME) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 func _on_modal_ui_changed(is_open: bool) -> void:

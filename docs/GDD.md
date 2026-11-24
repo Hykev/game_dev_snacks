@@ -221,9 +221,9 @@ Al sentarse, la cámara pasa a una vista fija sobre la mesa y el ratón se liber
 
 ### 5.4 Llenura y baño
 
-- Barra de **Llenura** 0–100. Cada bocado suma según el snack. Al llegar a 100 no puedes comer y caminas 20 % más lento.
+- Barra de **Llenura** 0–100. Cada bocado suma según el snack. Al llegar a 100 no puedes comer y caminas a la mitad de velocidad (50 %).
 - Digestión pasiva: baja 1 punto cada 10 minutos de juego (mejorable).
-- **Baño:** sentarte vacía la barra en 8 s (mejorable a 1 s). Mientras esperas puedes leer el «periódico»: noticias absurdas y alguna pista de easter egg (decorativo).
+- **Baño:** sentarte vacía la barra a velocidad constante: 15 s de 100 a 0, así que con menos llenura tardas menos (50 → 7,5 s). Levantarte con Q lo interrumpe y al volver sigue al mismo ritmo. «Tripas Express» baja el tiempo total (−1,5 s por nivel, hasta 7,5 s) e «Inodoro Inteligente» lo vuelve instantáneo. Sentado, la cámara baja a la altura de los ojos de alguien sentado. Mientras esperas puedes leer el «periódico»: noticias absurdas y alguna pista de easter egg (decorativo).
 - **Bebidas** de la máquina (desbloqueables) dan efectos temporales: digestión rápida, velocidad, suerte.
 
 ### 5.5 Premios y rarezas
