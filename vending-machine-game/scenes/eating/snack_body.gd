@@ -20,6 +20,9 @@ const LABEL_HOVER_COLOR := Color(1, 0.9, 0.2)
 var snack: SnackData
 var is_open := false
 var bites_left := 0
+## ¿Está sobre la mesa? Nace ahí (cae desde arriba de la zona de comer); la
+## mesa lo actualiza cuando sale o entra de su superficie.
+var is_on_table := true
 
 @onready var _mesh: MeshInstance3D = $MeshInstance3D
 @onready var _label: Label3D = $Label3D
@@ -63,6 +66,7 @@ func set_hovered(hovered: bool) -> void:
 ## La mesa avisa si el snack está sobre ella. Fuera de la mesa se puede
 ## recoger caminando.
 func set_on_table(on_table: bool) -> void:
+	is_on_table = on_table
 	_pickup_interactable.enabled = not on_table
 
 

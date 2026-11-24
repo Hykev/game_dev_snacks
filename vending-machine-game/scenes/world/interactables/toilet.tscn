@@ -37,3 +37,9 @@ prompt_text = "Usar el baño"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interactable"]
 shape = SubResource("BoxShape3D_interact")
+
+[node name="SitPoint" type="Marker3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0.7)
+
+[node name="StandPoint" type="Marker3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 1.2)

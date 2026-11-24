@@ -2,8 +2,6 @@
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud/hud.tscn" id="2_hud"]
-[ext_resource type="Script" uid="uid://bixt56p22aq3p" path="res://scenes/world/interactables/debug_interact_cube.gd" id="3_debug_cube"]
-[ext_resource type="Script" uid="uid://ddhupav2nq455" path="res://scenes/world/interactables/interactable.gd" id="4_interactable"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/vending_machine.tscn" id="5_machine"]
 [ext_resource type="PackedScene" path="res://scenes/ui/vending/vending_panel.tscn" id="6_vending_panel"]
 [ext_resource type="PackedScene" path="res://scenes/eating/eating_station.tscn" id="7_station"]
@@ -29,13 +27,6 @@ size = Vector3(20, 0.2, 20)
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(20, 0.2, 20)
 
-[sub_resource type="BoxMesh" id="BoxMesh_cube"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_cube"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_interact"]
-size = Vector3(1.1, 1.1, 1.1)
-
 [node name="TestRoom" type="Node3D" unique_id=1558570043]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1500373966]
@@ -48,46 +39,11 @@ transform = Transform3D(1, 0, 0, 0, 0.6428, 0.766, 0, -0.766, 0.6428, 0, 5, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=1818178986]
-material_overlay = SubResource("StandardMaterial3D_5cmiw")
+material_override = SubResource("StandardMaterial3D_5cmiw")
 mesh = SubResource("BoxMesh_floor")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=2129548279]
 shape = SubResource("BoxShape3D_floor")
-
-[node name="CubeA" type="StaticBody3D" parent="." unique_id=325695123]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, -4)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeA" unique_id=664403398]
-mesh = SubResource("BoxMesh_cube")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeA" unique_id=1973284993]
-shape = SubResource("BoxShape3D_cube")
-
-[node name="CubeB" type="StaticBody3D" parent="." unique_id=929028456]
-transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, -4, 1, -6)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeB" unique_id=751315855]
-mesh = SubResource("BoxMesh_cube")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeB" unique_id=761120835]
-shape = SubResource("BoxShape3D_cube")
-
-[node name="DebugCube" type="StaticBody3D" parent="." unique_id=2131680498]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -3)
-script = ExtResource("3_debug_cube")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="DebugCube" unique_id=279607975]
-mesh = SubResource("BoxMesh_cube")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube" unique_id=669301819]
-shape = SubResource("BoxShape3D_cube")
-
-[node name="Interactable" type="Area3D" parent="DebugCube" unique_id=1520793660]
-script = ExtResource("4_interactable")
-prompt_text = "Probar"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube/Interactable" unique_id=105879567]
-shape = SubResource("BoxShape3D_interact")
 
 [node name="Player" parent="." unique_id=552234118 instance=ExtResource("1_player")]
 
@@ -97,19 +53,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -1)
 [node name="EatingStation" parent="." unique_id=947374215 instance=ExtResource("7_station")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1, 0, 4)
 
-[node name="HUD" parent="." unique_id=414677038 instance=ExtResource("2_hud")]
-
-[node name="VendingPanel" parent="." unique_id=1919004749 instance=ExtResource("6_vending_panel")]
-
-[node name="TazoCard" parent="." instance=ExtResource("8_tazo_card")]
-
 [node name="Toilet" parent="." instance=ExtResource("9_toilet")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)
 
 [node name="Bed" parent="." instance=ExtResource("10_bed")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 6)
 
-[node name="DayCycle" type="Node" parent="."]
+[node name="DayCycle" type="Node" parent="." node_paths=PackedStringArray("wake_point")]
 script = ExtResource("12_day_cycle")
+wake_point = NodePath("../Bed/WakePoint")
+
+[node name="HUD" parent="." unique_id=414677038 instance=ExtResource("2_hud")]
+
+[node name="VendingPanel" parent="." unique_id=1919004749 instance=ExtResource("6_vending_panel")]
+
+[node name="TazoCard" parent="." instance=ExtResource("8_tazo_card")]
 
 [node name="DayScreens" parent="." instance=ExtResource("11_day_screens")]

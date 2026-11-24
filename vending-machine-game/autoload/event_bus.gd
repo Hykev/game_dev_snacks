@@ -87,9 +87,10 @@ signal tazo_card_closed()
 @warning_ignore("unused_signal")
 signal fullness_changed(current: float, maximum: float)
 
-## El inodoro pide que el jugador se siente (modo BAÑO).
+## El inodoro pide que el jugador se siente (modo BAÑO): `sit_point` es
+## dónde queda sentado y `stand_point` dónde queda al levantarse.
 @warning_ignore("unused_signal")
-signal toilet_sit_requested()
+signal toilet_sit_requested(sit_point: Node3D, stand_point: Node3D)
 
 ## El inodoro terminó de vaciar la llenura; el jugador se levanta solo.
 @warning_ignore("unused_signal")
@@ -146,10 +147,16 @@ signal day_started(day: int)
 
 # --- Jugador y estaciones ---
 
-## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa
-## no toca al jugador: el jugador decide cómo cambiar de modo.
+## La mesa pide que el jugador se siente y le pasa su cámara fija y el punto
+## donde debe quedar al levantarse. La mesa no toca al jugador: el jugador
+## decide cómo cambiar de modo.
 @warning_ignore("unused_signal")
-signal table_sit_requested(view_camera: Camera3D)
+signal table_sit_requested(view_camera: Camera3D, stand_point: Node3D)
+
+## Pide colocar al jugador en `point` (posición y hacia dónde mira). Lo usa
+## DayCycle para despertar junto a la cama.
+@warning_ignore("unused_signal")
+signal player_place_requested(point: Node3D)
 
 ## El jugador cambió de modo. `mode` es un valor de Player.Mode (WALK,
 ## TABLE, PANEL…). El HUD lo usa para ocultar el punto de mira y la mesa

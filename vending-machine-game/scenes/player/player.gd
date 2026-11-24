@@ -66,6 +66,10 @@ var _sleepy_speed_multiplier := 1.0
 # Altura de la cabeza de pie (la de la escena) y animación en curso.
 var _standing_head_height := 0.0
 var _head_tween: Tween
+# Dónde queda el jugador al levantarse de la mesa o del baño (lo da cada
+# mueble). Así siempre se levanta en el mismo lugar, sin importar por dónde
+# llegó. null si no está sentado.
+var _stand_point: Node3D = null
 
 
 func _ready() -> void:
@@ -75,11 +79,29 @@ func _ready() -> void:
 	_standing_head_height = _head.position.y
 	EventBus.modal_ui_changed.connect(_on_modal_ui_changed)
 	EventBus.table_sit_requested.connect(_on_table_sit_requested)
-	EventBus.toilet_sit_requested.connect(_set_mode.bind(Mode.BATHROOM))
+	EventBus.toilet_sit_requested.connect(_on_toilet_sit_requested)
 	EventBus.toilet_finished.connect(_on_toilet_finished)
 	EventBus.fullness_changed.connect(_on_fullness_changed)
 	EventBus.sleepy_changed.connect(_on_sleepy_changed)
+	EventBus.player_place_requested.connect(_place_at)
 	_set_mode(Mode.WALK)
+
+
+## Coloca al jugador en `point`: misma posición, mirando hacia donde mira el
+## punto (su -Z), con la cabeza derecha y sin velocidad.
+func _place_at(point: Node3D) -> void:
+	global_position = point.global_position
+	rotation = Vector3(0.0, point.global_rotation.y, 0.0)
+	_head.rotation.x = 0.0
+	velocity = Vector3.ZERO
+
+
+## El inodoro pidió sentarse: se coloca en su asiento y recuerda dónde
+## levantarse.
+func _on_toilet_sit_requested(sit_point: Node3D, stand_point: Node3D) -> void:
+	_stand_point = stand_point
+	_place_at(sit_point)
+	_set_mode(Mode.BATHROOM)
 
 
 func _on_sleepy_changed(is_sleepy: bool) -> void:
@@ -104,6 +126,10 @@ func _set_mode(new_mode: Mode, view_camera: Camera3D = null) -> void:
 		Mode.WALK:
 			_camera.make_current()
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			# Si venía de estar sentado, se levanta en el lugar fijo del mueble.
+			if _stand_point != null:
+				_place_at(_stand_point)
+				_stand_point = null
 		Mode.TABLE:
 			view_camera.make_current()
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -139,8 +165,10 @@ func _on_modal_ui_changed(is_open: bool) -> void:
 	_set_mode(Mode.PANEL if is_open else Mode.WALK)
 
 
-## Una estación (la mesa) pidió que el jugador se siente y le pasó su cámara.
-func _on_table_sit_requested(view_camera: Camera3D) -> void:
+## Una estación (la mesa) pidió que el jugador se siente y le pasó su cámara
+## y el punto donde levantarse.
+func _on_table_sit_requested(view_camera: Camera3D, stand_point: Node3D) -> void:
+	_stand_point = stand_point
 	_set_mode(Mode.TABLE, view_camera)
 
 

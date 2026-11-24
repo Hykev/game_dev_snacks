@@ -87,6 +87,10 @@ highlight_color = Color(0.3, 0.6, 1, 0.35)
 [node name="Snacks" type="Node3D" parent="."]
 unique_name_in_owner = true
 
+[node name="StandPoint" type="Marker3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.55)
+
 [node name="TableSurface" type="Area3D" parent="."]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)

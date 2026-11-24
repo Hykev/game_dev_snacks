@@ -24,9 +24,10 @@ const STARTING_UNLOCKED_SNACKS: Array[StringName] = [&"lzy", &"drk"]
 const MAX_TABLE_TAZOS := 8
 # Llenura máxima (GDD 5.4). La subirá la mejora «Estómago Elástico».
 const MAX_FULLNESS := 100.0
-# Digestión pasiva: −1 de llenura cada 10 min de juego (GDD 5.4). La
+# Digestión pasiva: −1 de llenura cada 30 min de juego (GDD 5.4), lenta a
+# propósito para dejar margen de mejora. La
 # mejorará «Metabolismo de Colibrí».
-const DIGESTION_PER_GAME_MINUTE := 0.1
+const DIGESTION_PER_GAME_MINUTE := 1.0 / 30.0
 # Parte del efectivo que se pierde al desmayarse a las 02:00 (GDD 4).
 const FAINT_MONEY_LOSS := 0.10
 
@@ -127,13 +128,12 @@ func end_day(fainted: bool) -> Dictionary:
 
 
 ## Empieza el día siguiente: avanza el número de día, reinicia las cifras,
-## repone la máquina (GDD 4: a las 08:00) y vacía el estómago (6 horas de
-## digestión durante la noche).
+## y repone la máquina (GDD 4: a las 08:00). La llenura se conserva: dormir
+## no vacía el estómago (hay que ir al baño).
 func start_next_day() -> void:
 	_day += 1
 	_reset_day_stats()
 	restock_machine()
-	_set_fullness(0.0)
 
 
 ## GDD 4: a las 02:00 se desmaya y pierde el 10 % del efectivo «por la

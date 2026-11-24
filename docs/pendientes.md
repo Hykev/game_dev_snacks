@@ -12,7 +12,7 @@ El loop comprar → comer → tazo → vender → baño → dormir funciona en `
 
 - **7c `SaveManager`:** JSON en `user://` con número de versión, 3 ranuras, `meta.json` aparte para Ecos. Solo ids y números (GameState: dinero, Brillos, día, llenura, inventario, colección, tazos en mesa, stock, casillas activas, semilla del RNG). Autoguardado al cerrar el resumen del día (en `DayCycle`). Al guardar a mitad del día, lo que hay en la mesa vuelve al inventario.
 - **7d Repartidor:** la venta deja de pagar al instante; los tazos van a la caja de envío y el repartidor paga cada 2 h de juego (GDD 5.8). Hoy `GameState.sell_table_tazo()` paga al instante (TEMPORAL).
-- Decisiones tomadas en 7b que el GDD no define: al dormir la llenura vuelve a 0; al despertar el jugador sigue donde estaba (no en la cama); sueño a las 00:00 = 70 % de velocidad.
+- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q.
 
 ## Después del paso 7
 
@@ -47,6 +47,5 @@ El loop comprar → comer → tazo → vender → baño → dormir funciona en `
 - Instalar GUT y convertir `tests/loot_simulation.gd` en pruebas automáticas de LootSystem y Economy.
 - `main.tscn` con el mundo en un SubViewport de 640×360 (filtro nearest) y la UI encima.
 - Medir rendimiento con el renderizador Mobile frente a Forward+ (objetivo: 60 FPS en gráfica integrada).
-- Borrar el `DebugCube` temporal de `test_room.tscn`.
-- Piso de `test_room`: usar Material Override en vez de Material Overlay.
-- Detalle menor: el límite de snacks en la mesa cuenta snacks terminados durante el mismo frame (solo afecta si se come muy rápido).
+- Rendimiento: ya no hay límite de snacks colocados en la mesa (tirarlos es parte del chiste). El GDD presupuesta ~6 cuerpos con física; medir con muchos snacks (los quietos duermen y casi no cuestan).
+- Baño: ajustar `SitPoint` y la altura de cámara sentada cuando exista el modelo final del inodoro.

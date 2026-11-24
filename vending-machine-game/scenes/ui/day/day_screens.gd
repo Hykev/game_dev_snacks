@@ -9,6 +9,23 @@ extends CanvasLayer
 ## El resumen será un «recibo de tienda» con sonido de impresora (GDD 11);
 ## por ahora es texto simple.
 
+## Compras absurdas que el protagonista hace dormido al desmayarse (GDD 4).
+## Se elige una al azar para el resumen. Pasan por tr() al mostrarse.
+const FAINT_PURCHASES: Array[String] = [
+	"Una lámpara de lava con forma de pato",
+	"12 calcetines izquierdos",
+	"Un curso en línea de cómo despertar temprano",
+	"Una pizza de piña con extra piña",
+	"Una alfombra que dice «Bienvenido» en klingon",
+	"Un cojín con la cara del jefe",
+	"Una suscripción anual a «Snacks del Mes»",
+	"Unas pantuflas con luces LED",
+	"Un dron que no vuela",
+	"Una figura de acción de Lic. Cobrano",
+	"Un kit para criar hormigas (sin hormigas)",
+	"Una chamarra de cuero de unicornio sintético",
+]
+
 @onready var _confirm_panel: Control = %ConfirmPanel
 @onready var _confirm_label: Label = %ConfirmLabel
 @onready var _yes_button: Button = %YesButton
@@ -54,7 +71,9 @@ func _on_day_ended(summary: Dictionary) -> void:
 	lines.append(tr("Ganado: $%d") % summary["money_earned"])
 	lines.append(tr("Gastado: $%d") % summary["money_spent"])
 	if summary["money_lost"] > 0:
-		lines.append(tr("Pizza pedida dormido: −$%d") % summary["money_lost"])
+		var purchase: String = FAINT_PURCHASES.pick_random()
+		lines.append(tr("Compraste dormido: %s") % tr(purchase))
+		lines.append(tr("  −$%d") % summary["money_lost"])
 	_summary_label.text = "\n".join(lines)
 	_summary_panel.show()
 	EventBus.modal_ui_changed.emit(true)

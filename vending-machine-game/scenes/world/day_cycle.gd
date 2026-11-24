@@ -14,6 +14,10 @@ extends Node
 ## Antes de esta hora, dormir pide confirmación (GDD 9: cama).
 const CONFIRM_BEFORE_MINUTE := 22 * 60
 
+## Dónde despierta el jugador cada mañana (junto a la cama), también
+## después de desmayarse.
+@export var wake_point: Node3D
+
 
 func _ready() -> void:
 	EventBus.sleep_requested.connect(_on_sleep_requested)
@@ -44,4 +48,6 @@ func _end_day(fainted: bool) -> void:
 func _on_day_summary_closed() -> void:
 	GameState.start_next_day()
 	TimeManager.start_day()
+	if wake_point != null:
+		EventBus.player_place_requested.emit(wake_point)
 	EventBus.day_started.emit(GameState.day)

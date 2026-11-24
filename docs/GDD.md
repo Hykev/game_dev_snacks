@@ -141,7 +141,7 @@ El centro del loop es comer; el baño es la pausa obligada que las mejoras van a
 4. **Decidir cada tazo:** coleccionar (álbum), vender (caja de envío) o reciclar (Brillos).
 5. **Baño:** cuando la llenura llega al tope ya no puedes comer; vas al baño y esperas unos segundos.
 6. **Vender y mejorar:** desde el teléfono publicas en el mercado, el repartidor recoge y te deposita; compras mejoras o abonas a la deuda.
-7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo «por la pizza que pidió dormido». Dormir en la cama termina el día cuando tú quieras.
+7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día cuando tú quieras.
 8. **Resumen del día:** pantalla con lo comido, tazos encontrados, ganado, gastado y días para el próximo pago. Autoguardado.
 
 ### Tiempo
@@ -222,7 +222,7 @@ Al sentarse, la cámara pasa a una vista fija sobre la mesa y el ratón se liber
 ### 5.4 Llenura y baño
 
 - Barra de **Llenura** 0–100. Cada bocado suma según el snack. Al llegar a 100 no puedes comer y caminas a la mitad de velocidad (50 %).
-- Digestión pasiva: baja 1 punto cada 10 minutos de juego (mejorable).
+- Digestión pasiva: baja 1 punto cada 30 minutos de juego (~36 por día completo; mejorable con «Metabolismo de Colibrí»). Dormir no vacía la llenura.
 - **Baño:** sentarte vacía la barra a velocidad constante: 15 s de 100 a 0, así que con menos llenura tardas menos (50 → 7,5 s). Levantarte con Q lo interrumpe y al volver sigue al mismo ritmo. «Tripas Express» baja el tiempo total (−1,5 s por nivel, hasta 7,5 s) e «Inodoro Inteligente» lo vuelve instantáneo. Sentado, la cámara baja a la altura de los ojos de alguien sentado. Mientras esperas puedes leer el «periódico»: noticias absurdas y alguna pista de easter egg (decorativo).
 - **Bebidas** de la máquina (desbloqueables) dan efectos temporales: digestión rápida, velocidad, suerte.
 

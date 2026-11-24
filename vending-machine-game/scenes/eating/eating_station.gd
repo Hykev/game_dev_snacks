@@ -26,9 +26,9 @@ const TAZO_ROWS := 4
 # Distancia (m) del cursor al centro de una ficha para considerarla señalada.
 # Un poco más que su radio (0.06) para que sea fácil apuntarle.
 const TAZO_PICK_RADIUS := 0.08
-# TEMPORAL: snacks colocados a la vez; cuida el presupuesto de física
-# (~6 cuerpos). Los dos límites los calculará Stats (Mesa Extensible).
-const MAX_SNACKS_ON_TABLE := 4
+# Snacks ABIERTOS a la vez sobre la mesa (GDD 5.3). Los que se cayeron al
+# piso o están en el inventario no cuentan. Lo subirá «Mesa Extensible».
+# No hay límite de snacks colocados: tirarlos de la mesa es parte del chiste.
 const MAX_OPEN_SNACKS := 2
 # Altura (sobre la zona) desde la que caen los snacks al colocarlos.
 const DROP_HEIGHT := 0.35
@@ -37,6 +37,8 @@ const SLOT_ACTIONS: Array[StringName] = [&"slot_1", &"slot_2", &"slot_3"]
 
 @onready var _seat_interactable: Interactable = %SeatInteractable
 @onready var _view_camera: Camera3D = %ViewCamera
+# Dónde queda el jugador al levantarse (siempre el mismo lugar).
+@onready var _stand_point: Marker3D = %StandPoint
 @onready var _grab_controller: GrabController = %GrabController
 @onready var _eat_zone: TableZone = %EatZone
 @onready var _tazo_zone: TableZone = %TazoZone
@@ -117,7 +119,7 @@ func _on_snack_pickup_requested(body: SnackBody) -> void:
 
 
 func _on_seat_interacted(_by: Node) -> void:
-	EventBus.table_sit_requested.emit(_view_camera)
+	EventBus.table_sit_requested.emit(_view_camera, _stand_point)
 
 
 func _on_player_mode_changed(mode: int) -> void:
@@ -221,12 +223,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## Saca un snack del espacio `slot_index` y lo suelta en la zona de comer.
-## Primero revisa que haya lugar en la mesa (y, si viene abierto, que no se
-## pase el límite de abiertos), para no sacarlo del inventario y luego no
-## poder ponerlo.
+## Si viene abierto, primero revisa el límite de abiertos en la mesa, para
+## no sacarlo del inventario y luego no poder ponerlo.
 func _place_snack_from_slot(slot_index: int) -> void:
-	if _snacks_root.get_child_count() >= MAX_SNACKS_ON_TABLE:
-		return
 	if GameState.is_slot_opened(slot_index) and _get_open_snacks().size() >= MAX_OPEN_SNACKS:
 		return
 	var taken := GameState.take_snack(slot_index)
@@ -261,13 +260,16 @@ func _get_eat_target() -> SnackBody:
 	return null
 
 
+## Snacks abiertos que están SOBRE la mesa (los del piso no cuentan para
+## el límite de abiertos).
 func _get_open_snacks() -> Array[SnackBody]:
 	var result: Array[SnackBody] = []
 	for child in _snacks_root.get_children():
 		var body := child as SnackBody
 		# queue_free() borra al final del frame: un snack recién terminado
 		# sigue en el árbol unos instantes y no debe contar como abierto.
-		if body != null and body.is_open and not body.is_queued_for_deletion():
+		if body != null and body.is_open and body.is_on_table \
+				and not body.is_queued_for_deletion():
 			result.append(body)
 	return result
 
