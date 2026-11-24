@@ -19,6 +19,13 @@ const FULLNESS_COLOR_FULL := Color(0.9, 0.2, 0.2)
 @onready var _fullness_bar: ProgressBar = %FullnessBar
 @onready var _hint_label: Label = %HintLabel
 @onready var _clock_label: Label = %ClockLabel
+@onready var _shipping_label: Label = %ShippingLabel
+@onready var _toast_label: Label = %ToastLabel
+
+# Segundos que se ve un aviso (toast) antes de desaparecer.
+const TOAST_SECONDS := 3.0
+# Animación del aviso actual: un aviso nuevo corta al anterior.
+var _toast_tween: Tween
 
 # Nombres de las teclas de "interact" y "stand_up" (ej. "E", "Q"). Se leen
 # del Input Map en vez de escribirlas fijas, para respetar si se reasignan.
@@ -35,6 +42,10 @@ func _ready() -> void:
 	_on_fullness_changed(GameState.fullness, GameState.MAX_FULLNESS)
 	EventBus.clock_changed.connect(_refresh_clock.unbind(1))
 	_refresh_clock()
+	EventBus.shipping_changed.connect(_refresh_shipping)
+	_refresh_shipping()
+	EventBus.notification_requested.connect(_show_toast)
+	_toast_label.hide()
 	EventBus.interaction_prompt_changed.connect(_on_interaction_prompt_changed)
 	# Dinero y Brillos van en la misma etiqueta: cualquiera de las dos
 	# señales la redibuja (unbind quita el argumento que no usamos).
@@ -45,6 +56,32 @@ func _ready() -> void:
 	# Valores iniciales: leemos una vez al arrancar; después, solo señales.
 	_refresh_currencies()
 	_on_inventory_changed()
+
+
+## Debajo del dinero: qué hay en la caja de envío y qué espera en la puerta.
+## Se oculta si no hay nada.
+func _refresh_shipping() -> void:
+	var parts: PackedStringArray = []
+	if GameState.get_shipping_box_count() > 0:
+		parts.append(tr("Caja: %d ($%d)") % [GameState.get_shipping_box_count(), GameState.get_shipping_box_total()])
+	if GameState.get_door_box_count() > 0:
+		parts.append(tr("En la puerta: %d ($%d)") % [GameState.get_door_box_count(), GameState.get_door_box_total()])
+	_shipping_label.text = "\n".join(parts)
+	_shipping_label.visible = not parts.is_empty()
+
+
+## Aviso corto a la derecha (GDD 11: notificaciones tipo toast). Aparece,
+## espera TOAST_SECONDS y se desvanece.
+func _show_toast(text: String) -> void:
+	if _toast_tween != null and _toast_tween.is_valid():
+		_toast_tween.kill()
+	_toast_label.text = text
+	_toast_label.modulate.a = 1.0
+	_toast_label.show()
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(TOAST_SECONDS)
+	_toast_tween.tween_property(_toast_label, "modulate:a", 0.0, 0.4)
+	_toast_tween.tween_callback(_toast_label.hide)
 
 
 ## El punto de mira solo tiene sentido al caminar (GDD 11: en la mesa no

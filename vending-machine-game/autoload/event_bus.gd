@@ -27,6 +27,11 @@ signal machine_stock_changed()
 
 # --- Interacción y UI ---
 
+## Muestra un aviso corto en pantalla (toast), ej. «El repartidor pagó $30».
+## Cualquier sistema puede pedirlo; el HUD lo muestra unos segundos.
+@warning_ignore("unused_signal")
+signal notification_requested(text: String)
+
 ## El jugador usó la máquina expendedora; el panel de compra se abre.
 @warning_ignore("unused_signal")
 signal vending_machine_opened()
@@ -62,6 +67,11 @@ signal tazo_found(tazo_id: StringName)
 ## Cambiaron los tazos que esperan sobre la mesa; la mesa redibuja sus fichas.
 @warning_ignore("unused_signal")
 signal table_tazos_changed()
+
+## Cambió la caja de envío o lo que espera en la puerta (venta, dejar la
+## caja, el repartidor). El HUD y la puerta se actualizan.
+@warning_ignore("unused_signal")
+signal shipping_changed()
 
 ## Se guardó un tazo en la colección (los álbumes lo usarán).
 @warning_ignore("unused_signal")

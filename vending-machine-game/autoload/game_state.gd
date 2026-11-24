@@ -95,6 +95,12 @@ var _collection: Dictionary[StringName, bool] = {}
 # cargar, la mesa los vuelve a crear. No se guardan posiciones (GDD 14).
 var _loose_snacks: Array[Dictionary] = []
 
+# Venta (GDD 5.8): los tazos vendidos van a la caja de envío como
+# {"tazo_id", "price"} (el precio se fija al vender). Al dejar la caja en la
+# puerta pasan a _door_box, y el repartidor paga lo que haya ahí.
+var _shipping_box: Array[Dictionary] = []
+var _door_box: Array[Dictionary] = []
+
 # Un elemento por espacio de la barra rápida. Espacio vacío = {}.
 # Espacio ocupado = {"snack_id": StringName, "count": int}. Solo ids y
 # números, para que SaveManager pueda guardarlo tal cual en JSON.
@@ -198,6 +204,8 @@ func get_save_data() -> Dictionary:
 		"collection": _collection.keys(),
 		"table_tazos": _table_tazos.duplicate(true),
 		"loose_snacks": _loose_snacks.duplicate(true),
+		"shipping_box": _shipping_box.duplicate(true),
+		"door_box": _door_box.duplicate(true),
 		"unlocked_snacks": _unlocked_snacks.duplicate(),
 		"machine_stock": stock,
 		"rng_seed": str(_rng.seed),
@@ -236,6 +244,14 @@ func apply_save_data(data: Dictionary) -> void:
 		var parsed := _parse_snack_entry(entry, false)
 		if not parsed.is_empty():
 			_loose_snacks.append(parsed)
+
+	# Los precios ya están fijados: se respetan aunque el tazo ya no exista.
+	_shipping_box.clear()
+	for item: Dictionary in data.get("shipping_box", []):
+		_shipping_box.append({"tazo_id": StringName(item["tazo_id"]), "price": int(item["price"])})
+	_door_box.clear()
+	for item: Dictionary in data.get("door_box", []):
+		_door_box.append({"tazo_id": StringName(item["tazo_id"]), "price": int(item["price"])})
 
 	_unlocked_snacks.clear()
 	for snack_id: String in data.get("unlocked_snacks", STARTING_UNLOCKED_SNACKS):
@@ -280,6 +296,7 @@ func _emit_all_changed() -> void:
 	EventBus.collection_changed.emit()
 	EventBus.table_tazos_changed.emit()
 	EventBus.machine_stock_changed.emit()
+	EventBus.shipping_changed.emit()
 
 
 # --- Dinero ---
@@ -452,16 +469,65 @@ func collect_table_tazo(index: int) -> bool:
 	return true
 
 
-## Vende el tazo de la mesa. Devuelve el dinero ganado (-1 si no existe).
-## TEMPORAL: paga al instante. Con el reloj del día (paso 7) irá a la caja
-## de envío y el repartidor pagará al recogerla (GDD 5.8).
+## Vende el tazo de la mesa: va a la caja de envío con su precio de hoy
+## (GDD 5.8). El dinero llega cuando el repartidor recoge la caja en la
+## puerta. Devuelve el precio (-1 si no existe).
 func sell_table_tazo(index: int) -> int:
 	if _get_table_tazo_data(index) == null:
 		return -1
 	var price := get_table_tazo_sale_price(index)
+	_shipping_box.append({"tazo_id": _table_tazos[index]["tazo_id"], "price": price})
 	_remove_table_tazo(index)
-	add_money(price)
+	EventBus.shipping_changed.emit()
 	return price
+
+
+# --- Envíos (caja y repartidor) ---
+
+func get_shipping_box_count() -> int:
+	return _shipping_box.size()
+
+
+func get_shipping_box_total() -> int:
+	return _sum_prices(_shipping_box)
+
+
+func get_door_box_count() -> int:
+	return _door_box.size()
+
+
+func get_door_box_total() -> int:
+	return _sum_prices(_door_box)
+
+
+## Lleva la caja de envío a la puerta: todo pasa a esperar al repartidor.
+## Devuelve cuántos tazos se movieron.
+func move_box_to_door() -> int:
+	var moved := _shipping_box.size()
+	if moved == 0:
+		return 0
+	_door_box.append_array(_shipping_box)
+	_shipping_box.clear()
+	EventBus.shipping_changed.emit()
+	return moved
+
+
+## El repartidor recoge lo que hay en la puerta y paga. Devuelve lo pagado.
+func collect_door_box() -> int:
+	var total := get_door_box_total()
+	if _door_box.is_empty():
+		return 0
+	_door_box.clear()
+	add_money(total)
+	EventBus.shipping_changed.emit()
+	return total
+
+
+func _sum_prices(items: Array[Dictionary]) -> int:
+	var total := 0
+	for item in items:
+		total += int(item["price"])
+	return total
 
 
 ## Recicla el tazo de la mesa en Brillos. Devuelve los Brillos ganados

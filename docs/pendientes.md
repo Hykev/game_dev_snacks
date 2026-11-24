@@ -5,19 +5,24 @@ Lo marcado **TEMPORAL** en el código (comentarios `TEMPORAL:`) está explicado 
 
 ## Estado actual (prototipo gris)
 
-Hecho: pasos 1–6, 7a y 7b (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente).
-El loop comprar → comer → tazo → vender → baño → dormir funciona en `scenes/world/test_room.tscn`. El fin del día lo coordina `DayCycle` (scenes/world/day_cycle.gd).
+Hecho: pasos 1–7 (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente, guardado/carga en JSON, caja de envío con repartidor cada 2 h y avisos en pantalla).
+El loop completo comprar → comer → tazo → vender → baño → dormir → guardar funciona en `scenes/world/test_room.tscn`. El fin del día lo coordina `DayCycle` (scenes/world/day_cycle.gd).
 
-## Siguiente: paso 7c y 7d
+## Siguiente: máquina 3D (último paso del prototipo gris)
 
-- **7c `SaveManager`:** JSON en `user://` con número de versión, 3 ranuras, `meta.json` aparte para Ecos. Solo ids y números (GameState: dinero, Brillos, día, llenura, inventario, colección, tazos en mesa, stock, casillas activas, semilla del RNG). Autoguardado al cerrar el resumen del día (en `DayCycle`). Al guardar a mitad del día, lo que hay en la mesa vuelve al inventario.
-- **7d Repartidor:** la venta deja de pagar al instante; los tazos van a la caja de envío y el repartidor paga cada 2 h de juego (GDD 5.8). Hoy `GameState.sell_table_tazo()` paga al instante (TEMPORAL).
-- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q.
+- **Máquina 3D (GDD 5.1):** reemplaza el panel 2D (`scenes/ui/vending/`). Modo MÁQUINA con cámara fija frente a ella; snacks visibles por casilla; hover con **outline** y clic izq/der al carrito; pantalla con la lista; pago con objetos (ranura/lector); bandeja que se vacía con E. Comprar ya no exigirá espacio en el inventario (los snacks esperan en la bandeja). Reutilizar el cursor del `GrabController` de la mesa.
+- El **outline** debe servir también para los snacks de la mesa (hoy solo ponen su nombre amarillo).
 
-## Después del paso 7
+## Guardado y envíos (pendientes menores)
 
-- **Máquina 3D (GDD 5.1):** reemplaza el panel 2D. Snacks visibles por casilla, hover con outline, clic izq/der al carrito, pantalla con la lista, pago con objetos (ranura/lector), bandeja que se vacía con E. Comprar ya no exigirá espacio en el inventario (los snacks esperan en la bandeja).
-- **Outline real** compartido por mesa y máquina (hoy el snack señalado solo pone su nombre amarillo).
+- `meta.json` para los Ecos (cuando existan) y menú principal con 3 ranuras (hoy siempre ranura 1, se carga sola al iniciar).
+- Para empezar de cero: borrar `%APPDATA%\Godotpp_userdataending-machine-game\save_slot_1.json` (falta un menú de depuración F1 que lo haga).
+- Al cargar, el jugador aparece en su posición inicial de la escena (no se guardan posiciones).
+- Envíos: falta publicar desde la app TazoBay del teléfono, las notas del repartidor y las mejoras (Recolección a Domicilio, Repartidor Puntual, Venta Instantánea).
+- Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor pasa en horas pares desde las 08:00 (10:00, 12:00…).
+
+## Después de la máquina 3D
+
 - **Sensación de la mesa:** agarrar la bolsa desde arriba y que cuelgue con física (péndulo) + mecánica de **agitar** (GDD 5.3).
 
 ## Tazos y colección
@@ -31,7 +36,7 @@ El loop comprar → comer → tazo → vender → baño → dormir funciona en `
 
 ## UI y audio
 
-- Notificaciones tipo toast: mesa llena, inventario lleno al recoger, lleno para comer, venta realizada.
+- Avisos (ya existe `EventBus.notification_requested`): falta usarlos para inventario lleno al recoger y lleno para comer.
 - Gruñido del estómago al pasar de 80 de llenura (AudioManager).
 - Periódico del baño (decorativo, GDD 5.4).
 

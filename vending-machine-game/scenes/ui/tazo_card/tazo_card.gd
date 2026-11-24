@@ -105,7 +105,8 @@ func _on_collect_pressed() -> void:
 
 
 func _on_sell_pressed() -> void:
-	GameState.sell_table_tazo(_index)
+	var price := GameState.sell_table_tazo(_index)
+	EventBus.notification_requested.emit(tr("A la caja de envío: $%d") % price)
 	close()
 
 
