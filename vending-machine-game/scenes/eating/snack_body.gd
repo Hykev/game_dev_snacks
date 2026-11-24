@@ -8,7 +8,7 @@ extends RigidBody3D
 ## volver a la mesa.
 
 ## Lo usaron con «E · Recoger» estando fuera de la mesa. La mesa escucha
-## esta señal y lo devuelve a la zona de comer.
+## esta señal y lo guarda en el inventario (vía GameState).
 signal pickup_requested
 
 const CLOSED_COLOR := Color(0.6, 0.6, 0.6)
@@ -38,9 +38,11 @@ func _ready() -> void:
 	_pickup_interactable.interacted.connect(_on_pickup_interacted)
 
 
-func open() -> void:
+## Abre el snack. `remaining_bites` = -1 para uno recién abierto (todos sus
+## bocados); un número para uno que se guardó abierto en el inventario.
+func open(remaining_bites: int = -1) -> void:
 	is_open = true
-	bites_left = snack.bites
+	bites_left = snack.bites if remaining_bites < 0 else remaining_bites
 	_material.albedo_color = OPEN_COLOR
 	_update_label()
 
@@ -62,15 +64,6 @@ func set_hovered(hovered: bool) -> void:
 ## recoger caminando.
 func set_on_table(on_table: bool) -> void:
 	_pickup_interactable.enabled = not on_table
-
-
-## Lo deja quieto en `point` (para devolverlo a la mesa). Se resetean las
-## velocidades para que no conserve la inercia de la caída.
-func reset_at(point: Vector3) -> void:
-	linear_velocity = Vector3.ZERO
-	angular_velocity = Vector3.ZERO
-	global_position = point
-	rotation = Vector3(0.0, randf() * TAU, 0.0)
 
 
 func _on_pickup_interacted(_by: Node) -> void:

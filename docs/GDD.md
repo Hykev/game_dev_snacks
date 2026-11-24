@@ -212,7 +212,7 @@ Al sentarse, la cámara pasa a una vista fija sobre la mesa y el ratón se liber
 - **Colocar:** 1–8 pone el snack en la zona de comer (cae con físicas).
 - **Agarrar y mover:** clic izquierdo sostenido; el snack sigue al ratón en el aire con físicas suaves. Soltarlo lo deja caer. Puedes soltar el snack en cualquier momento para revisar tus tazos.
   - *Pendiente (junto con Agitar):* la bolsa se sujeta de la parte de arriba y cuelga con física mientras se sostiene (se balancea como péndulo), en vez de moverse rígida desde su centro.
-- **Tirar y recoger:** los snacks se pueden tirar de la mesa. En el piso muestran «E · Recoger» al caminar; al recogerlos vuelven a la zona de comer con sus bocados intactos.
+- **Tirar y recoger:** los snacks se pueden tirar de la mesa. En el piso muestran «E · Recoger» al caminar; al recogerlos vuelven al inventario. Uno cerrado se apila normal; uno abierto ocupa un espacio completo (no se apila) y conserva sus bocados. Si no hay lugar, se queda en el piso. Al volver a colocarlo en la mesa sigue abierto y cuenta para el límite de abiertos.
 - **Abrir:** E con el snack agarrado (o señalado). Hay 5 tipos de envase con su animación: bolsa, tubo, envoltura, caja y huevo (sección 6).
 - **Comer:** Espacio = un bocado del snack abierto que **sostienes** con clic izquierdo (señalarlo no basta). Cada snack tiene N bocados; el premio está en un bocado al azar. Mantener Espacio come en cadena después de comprar la mejora «Masticación Continua».
 - **Agitar:** sacudir el snack abierto con el ratón (movimiento rápido) tiene probabilidad de que el premio salga antes. Es la única mecánica de habilidad y premia jugar activo.

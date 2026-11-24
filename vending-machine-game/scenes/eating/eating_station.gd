@@ -92,9 +92,17 @@ func _on_table_surface_body_changed(body: Node3D, on_table: bool) -> void:
 	snack_body.set_on_table(on_table)
 
 
-## Recogieron un snack del piso: vuelve a la zona de comer tal como estaba.
+## Recogieron un snack del piso: vuelve al inventario (se le PIDE a
+## GameState). Cerrado se apila normal; abierto ocupa un espacio completo y
+## conserva sus bocados. Si no hay lugar, se queda en el piso.
 func _on_snack_pickup_requested(body: SnackBody) -> void:
-	body.reset_at(_eat_zone.get_drop_point(DROP_HEIGHT))
+	var stored: bool
+	if body.is_open:
+		stored = GameState.add_opened_snack(body.snack.id, body.bites_left)
+	else:
+		stored = GameState.add_snack(body.snack.id)
+	if stored:
+		body.queue_free()
 
 
 func _on_seat_interacted(_by: Node) -> void:
@@ -169,18 +177,24 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## Saca un snack del espacio `slot_index` y lo suelta en la zona de comer.
-## Primero revisa que haya lugar en la mesa, para no sacarlo del inventario
-## y luego no poder ponerlo.
+## Primero revisa que haya lugar en la mesa (y, si viene abierto, que no se
+## pase el límite de abiertos), para no sacarlo del inventario y luego no
+## poder ponerlo.
 func _place_snack_from_slot(slot_index: int) -> void:
 	if _snacks_root.get_child_count() >= MAX_SNACKS_ON_TABLE:
 		return
-	var snack_id := GameState.take_snack(slot_index)
-	if snack_id.is_empty():
+	if GameState.is_slot_opened(slot_index) and _get_open_snacks().size() >= MAX_OPEN_SNACKS:
+		return
+	var taken := GameState.take_snack(slot_index)
+	if taken.is_empty():
 		return
 	var body := SNACK_BODY_SCENE.instantiate() as SnackBody
-	body.snack = Database.get_snack(snack_id)
+	body.snack = Database.get_snack(taken["snack_id"])
 	body.pickup_requested.connect(_on_snack_pickup_requested.bind(body))
 	_snacks_root.add_child(body)
+	# Un snack que se guardó abierto vuelve abierto, con sus bocados.
+	if taken["bites_left"] >= 0:
+		body.open(taken["bites_left"])
 	body.global_position = _eat_zone.get_drop_point(DROP_HEIGHT)
 	# Un giro al azar para que no caigan todos iguales.
 	body.rotation.y = randf() * TAU

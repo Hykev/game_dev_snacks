@@ -47,7 +47,11 @@ func _on_inventory_changed() -> void:
 			parts.append("%d: —" % (i + 1))
 		else:
 			var snack := Database.get_snack(slot["snack_id"])
-			parts.append("%d: %s ×%d" % [i + 1, snack.display_name, slot["count"]])
+			if slot.has("bites_left"):
+				# Abierto: ocupa el espacio solo; mostramos sus bocados.
+				parts.append("%d: %s (%d/%d)" % [i + 1, snack.display_name, slot["bites_left"], snack.bites])
+			else:
+				parts.append("%d: %s ×%d" % [i + 1, snack.display_name, slot["count"]])
 	_inventory_label.text = "   ".join(parts)
 
 

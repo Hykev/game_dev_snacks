@@ -117,18 +117,38 @@ func add_snack(snack_id: StringName) -> bool:
 	return true
 
 
+## Guarda un snack YA ABIERTO (recogido del piso). Ocupa un espacio vacío
+## completo y nunca se apila, porque cada snack abierto tiene sus propios
+## bocados restantes. Devuelve false si no hay un espacio vacío.
+func add_opened_snack(snack_id: StringName, bites_left: int) -> bool:
+	var index := _inventory.find({})
+	if index == -1:
+		return false
+	_inventory[index] = {"snack_id": snack_id, "count": 1, "bites_left": bites_left}
+	EventBus.inventory_changed.emit()
+	return true
+
+
+## ¿El espacio tiene un snack abierto? (la mesa lo revisa antes de sacarlo)
+func is_slot_opened(slot_index: int) -> bool:
+	if slot_index < 0 or slot_index >= _inventory.size():
+		return false
+	return _inventory[slot_index].has("bites_left")
+
+
 ## Saca UN snack del espacio `slot_index` (para ponerlo en la mesa).
-## Devuelve su id, o &"" si el espacio está vacío o no existe.
-func take_snack(slot_index: int) -> StringName:
+## Devuelve {"snack_id", "bites_left"}; bites_left = -1 si estaba cerrado.
+## Devuelve {} si el espacio está vacío o no existe.
+func take_snack(slot_index: int) -> Dictionary:
 	if slot_index < 0 or slot_index >= _inventory.size() or _inventory[slot_index].is_empty():
-		return &""
+		return {}
 	var slot := _inventory[slot_index]
-	var snack_id: StringName = slot["snack_id"]
+	var taken := {"snack_id": slot["snack_id"], "bites_left": slot.get("bites_left", -1)}
 	slot["count"] -= 1
 	if slot["count"] <= 0:
 		_inventory[slot_index] = {}
 	EventBus.inventory_changed.emit()
-	return snack_id
+	return taken
 
 
 # --- Máquina expendedora ---
@@ -201,7 +221,9 @@ func buy_snack(snack_id: StringName) -> BuyResult:
 func _find_slot_for(snack_id: StringName) -> int:
 	for i in _inventory.size():
 		var slot := _inventory[i]
-		if not slot.is_empty() and slot["snack_id"] == snack_id and slot["count"] < MAX_STACK:
+		# Un snack abierto ("bites_left") nunca recibe otros encima.
+		if not slot.is_empty() and not slot.has("bites_left") \
+				and slot["snack_id"] == snack_id and slot["count"] < MAX_STACK:
 			return i
 	for i in _inventory.size():
 		if _inventory[i].is_empty():
