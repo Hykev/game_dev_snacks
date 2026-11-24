@@ -10,6 +10,17 @@ extends Node
 
 # Las señales se irán agregando conforme se programe cada sistema.
 
+# --- Economía e inventario (las emite GameState) ---
+
+## El efectivo del jugador cambió; `amount` es el total nuevo, no la diferencia.
+@warning_ignore("unused_signal")
+signal money_changed(amount: int)
+
+## Algo cambió en el inventario (se agregó o quitó un snack). Quien escuche
+## pide a GameState el estado actual en vez de recibir una copia aquí.
+@warning_ignore("unused_signal")
+signal inventory_changed()
+
 # --- Interacción ---
 
 ## El jugador empezó a mirar algo usable (prompt_text = "Sentarse", "Dormir"…)
