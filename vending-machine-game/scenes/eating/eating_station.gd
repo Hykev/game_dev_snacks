@@ -7,8 +7,10 @@ extends Node3D
 ## - Zonas: comer (derecha) y tazos (izquierda) brillan bajo el cursor.
 ## - Colocar: con slot_1…slot_3 saca un snack del inventario (pidiéndoselo a
 ##   GameState) y lo deja caer con física en la zona de comer.
-## - Agarrar (grab), abrir (interact) y comer (eat) el snack agarrado o
-##   señalado. El movimiento lo hace el GrabController.
+## - Agarrar (grab) y abrir (interact) el snack agarrado o señalado; comer
+##   (eat) solo el que se sostiene. El movimiento lo hace el GrabController.
+## - Recoger: un snack que cae fuera de la mesa se puede recoger caminando y
+##   vuelve a la zona de comer. TableSurface avisa cuándo sale o entra.
 ##
 ## Solo procesa entrada y cursor mientras el jugador está sentado.
 
@@ -30,6 +32,8 @@ const SLOT_ACTIONS: Array[StringName] = [&"slot_1", &"slot_2", &"slot_3"]
 @onready var _eat_zone: TableZone = %EatZone
 @onready var _tazo_zone: TableZone = %TazoZone
 @onready var _snacks_root: Node3D = %Snacks
+# Volumen sobre la mesa: sus señales dicen si un snack está encima o se cayó.
+@onready var _table_surface: Area3D = %TableSurface
 
 var _is_active := false
 var _hovered_zone: TableZone = null
@@ -39,8 +43,25 @@ var _hovered_snack: SnackBody = null
 func _ready() -> void:
 	_seat_interactable.interacted.connect(_on_seat_interacted)
 	EventBus.player_mode_changed.connect(_on_player_mode_changed)
+	_table_surface.body_entered.connect(_on_table_surface_body_changed.bind(true))
+	_table_surface.body_exited.connect(_on_table_surface_body_changed.bind(false))
 	# Sin jugador sentado no hay nada que calcular cada frame.
 	set_physics_process(false)
+
+
+## Un cuerpo entró o salió del volumen sobre la mesa. Solo nos importan los
+## snacks: fuera de la mesa se pueden recoger caminando.
+func _on_table_surface_body_changed(body: Node3D, on_table: bool) -> void:
+	var snack_body := body as SnackBody
+	# Un snack recién terminado también "sale" al borrarse: lo ignoramos.
+	if snack_body == null or snack_body.is_queued_for_deletion():
+		return
+	snack_body.set_on_table(on_table)
+
+
+## Recogieron un snack del piso: vuelve a la zona de comer tal como estaba.
+func _on_snack_pickup_requested(body: SnackBody) -> void:
+	body.reset_at(_eat_zone.get_drop_point(DROP_HEIGHT))
 
 
 func _on_seat_interacted(_by: Node) -> void:
@@ -125,6 +146,7 @@ func _place_snack_from_slot(slot_index: int) -> void:
 		return
 	var body := SNACK_BODY_SCENE.instantiate() as SnackBody
 	body.snack = Database.get_snack(snack_id)
+	body.pickup_requested.connect(_on_snack_pickup_requested.bind(body))
 	_snacks_root.add_child(body)
 	body.global_position = _eat_zone.get_drop_point(DROP_HEIGHT)
 	# Un giro al azar para que no caigan todos iguales.
@@ -139,14 +161,13 @@ func _get_target_snack() -> SnackBody:
 	return _hovered_snack
 
 
-## Para comer: el agarrado o señalado si está abierto; si no, el único
-## snack abierto de la mesa (así no hace falta apuntar si solo hay uno).
+## Para comer: SOLO el snack que se sostiene, y solo si está abierto.
+## Señalarlo no basta (decisión de diseño: comer es "llevarlo a la boca").
 func _get_eat_target() -> SnackBody:
-	var target := _get_target_snack()
-	if target != null and target.is_open:
-		return target
-	var open_snacks := _get_open_snacks()
-	return open_snacks[0] if open_snacks.size() == 1 else null
+	var held := _grab_controller.held_body
+	if is_instance_valid(held) and held.is_open:
+		return held
+	return null
 
 
 func _get_open_snacks() -> Array[SnackBody]:

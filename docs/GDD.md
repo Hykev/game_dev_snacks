@@ -211,8 +211,10 @@ Al sentarse, la cámara pasa a una vista fija sobre la mesa y el ratón se liber
   - **Izquierda, zona de tazos:** cuando sale un tazo, vuela hacia la cámara (la revelación), gira y se acomoda solo en la siguiente casilla libre de esta zona.
 - **Colocar:** 1–8 pone el snack en la zona de comer (cae con físicas).
 - **Agarrar y mover:** clic izquierdo sostenido; el snack sigue al ratón en el aire con físicas suaves. Soltarlo lo deja caer. Puedes soltar el snack en cualquier momento para revisar tus tazos.
+  - *Pendiente (junto con Agitar):* la bolsa se sujeta de la parte de arriba y cuelga con física mientras se sostiene (se balancea como péndulo), en vez de moverse rígida desde su centro.
+- **Tirar y recoger:** los snacks se pueden tirar de la mesa. En el piso muestran «E · Recoger» al caminar; al recogerlos vuelven a la zona de comer con sus bocados intactos.
 - **Abrir:** E con el snack agarrado (o señalado). Hay 5 tipos de envase con su animación: bolsa, tubo, envoltura, caja y huevo (sección 6).
-- **Comer:** Espacio = un bocado. Cada snack tiene N bocados; el premio está en un bocado al azar. Mantener Espacio come en cadena después de comprar la mejora «Masticación Continua».
+- **Comer:** Espacio = un bocado del snack abierto que **sostienes** con clic izquierdo (señalarlo no basta). Cada snack tiene N bocados; el premio está en un bocado al azar. Mantener Espacio come en cadena después de comprar la mejora «Masticación Continua».
 - **Agitar:** sacudir el snack abierto con el ratón (movimiento rápido) tiene probabilidad de que el premio salga antes. Es la única mecánica de habilidad y premia jugar activo.
 - **Revisar tazos:** clic en un tazo de la zona izquierda abre su carta (nombre, serie, rareza, valor, «ya lo tienes») con los botones Coleccionar / Vender / Reciclar.
 - **Capacidad:** 2 snacks abiertos a la vez y 8 casillas de tazos al inicio (mejorables). Si la zona de tazos se llena, los nuevos se apilan en una pila al borde que se puede abrir como lista.

@@ -15,6 +15,27 @@ signal interacted(by: Node)
 ## Pasa por tr() en el HUD, así que también sirve como clave de traducción.
 @export var prompt_text: String = "Usar"
 
+## Si es false, el rayo del jugador no lo detecta (no muestra «E · …»).
+## Sirve para objetos que solo a veces se pueden usar, como un snack que
+## solo se "recoge" cuando está en el piso.
+@export var enabled: bool = true:
+	set(value):
+		enabled = value
+		if is_node_ready():
+			_apply_enabled()
+
+# Capas de colisión originales: apagarlas (0) lo hace invisible al rayo.
+var _original_layer: int = 0
+
+
+func _ready() -> void:
+	_original_layer = collision_layer
+	_apply_enabled()
+
+
+func _apply_enabled() -> void:
+	collision_layer = _original_layer if enabled else 0
+
 
 ## El jugador lo llama al presionar la acción "interact" mientras lo mira.
 func interact(by: Node) -> void:

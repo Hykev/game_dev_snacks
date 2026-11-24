@@ -1,6 +1,10 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/eating/snack_body.gd" id="1_snack_body"]
+[ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="2_interactable"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pickup"]
+size = Vector3(0.4, 0.25, 0.45)
 
 [sub_resource type="BoxMesh" id="BoxMesh_bag"]
 size = Vector3(0.22, 0.06, 0.3)
@@ -25,3 +29,10 @@ billboard = 1
 no_depth_test = true
 font_size = 40
 outline_size = 8
+
+[node name="PickupInteractable" type="Area3D" parent="."]
+script = ExtResource("2_interactable")
+prompt_text = "Recoger"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupInteractable"]
+shape = SubResource("BoxShape3D_pickup")
