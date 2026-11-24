@@ -1,13 +1,21 @@
 class_name Player
 extends CharacterBody3D
-## El protagonista en primera persona: camina, corre y mira con el ratón.
+## El protagonista en primera persona.
 ##
-## Por ahora solo existe el modo "caminar". Los demás modos del GDD (mesa,
-## teléfono, baño…) se agregarán cuando existan esas estaciones, para no
-## programar algo que todavía no se usa.
+## Tiene un MODO activo (caminar, mesa, panel…). Solo el modo activo
+## procesa entrada, y cambiar de modo cambia la cámara y la captura del
+## ratón en UN solo lugar: _set_mode(). Así nunca hay dos sistemas peleando
+## por el ratón o por cuál cámara está activa.
 ##
-## Toda la entrada pasa por acciones del Input Map (move_*, sprint), nunca
-## por teclas fijas, para poder reasignar teclas y soportar control después.
+## Toda la entrada pasa por acciones del Input Map (move_*, sprint,
+## interact, stand_up), nunca por teclas fijas.
+
+## Modos del jugador. Se irán sumando BAÑO, TELÉFONO, MÁQUINA, DORMIR…
+enum Mode {
+	WALK,   ## Caminar por el apartamento.
+	TABLE,  ## Sentado a la mesa: cámara fija, ratón libre.
+	PANEL,  ## Un panel 2D abierto (temporal: el de la máquina).
+}
 
 @export_group("Movimiento")
 ## Velocidad al caminar en metros por segundo. Más adelante la calculará
@@ -29,43 +37,65 @@ extends CharacterBody3D
 # La cabeza gira arriba/abajo; el cuerpo entero gira a los lados. Separarlos
 # evita que el jugador se incline al mirar al piso.
 @onready var _head: Node3D = %Head
+@onready var _camera: Camera3D = %Camera3D
 # Rayo que sale de la cámara hacia el frente: lo que toque es lo que "miras".
 # Su largo (target_position en la escena) es el alcance para usar objetos.
 @onready var _interact_ray: RayCast3D = %InteractRay
 
+var _mode: Mode = Mode.WALK
 # El Interactable que el jugador está mirando ahora (null si ninguno).
 var _current_interactable: Interactable = null
-# False mientras hay un panel abierto (máquina, después teléfono…): el
-# jugador no camina, no mira y no interactúa. Es el inicio de los "modos"
-# del GDD; cuando haya mesa y baño se volverá un modo con nombre.
-var _controls_enabled := true
 
 
 func _ready() -> void:
-	# En primera persona el ratón debe quedar oculto y "atrapado" en la ventana.
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# El rayo nace dentro de la cápsula del jugador: lo excluimos para que
 	# nunca se detecte a sí mismo.
 	_interact_ray.add_exception(self)
 	EventBus.modal_ui_changed.connect(_on_modal_ui_changed)
+	EventBus.table_sit_requested.connect(_on_table_sit_requested)
+	_set_mode(Mode.WALK)
 
 
-## Un panel se abrió o cerró. El ratón se maneja SOLO aquí, en un lugar,
-## para que dos sistemas nunca peleen por capturarlo o soltarlo.
-func _on_modal_ui_changed(is_open: bool) -> void:
-	_controls_enabled = not is_open
-	if is_open:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		# Ocultar «E · Comprar» mientras el panel está abierto.
+## Único lugar donde se cambia de modo: decide cámara, ratón y avisa.
+## `view_camera` es la cámara fija de la estación (solo para MESA).
+func _set_mode(new_mode: Mode, view_camera: Camera3D = null) -> void:
+	_mode = new_mode
+	match new_mode:
+		Mode.WALK:
+			_camera.make_current()
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		Mode.TABLE:
+			view_camera.make_current()
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		Mode.PANEL:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Fuera de CAMINAR no se interactúa con el mundo: ocultar «E · …».
+	if new_mode != Mode.WALK:
 		_set_current_interactable(null)
-	else:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	EventBus.player_mode_changed.emit(new_mode)
+
+
+func _on_modal_ui_changed(is_open: bool) -> void:
+	_set_mode(Mode.PANEL if is_open else Mode.WALK)
+
+
+## Una estación (la mesa) pidió que el jugador se siente y le pasó su cámara.
+func _on_table_sit_requested(view_camera: Camera3D) -> void:
+	_set_mode(Mode.TABLE, view_camera)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _controls_enabled:
-		return
+	match _mode:
+		Mode.WALK:
+			_handle_walk_input(event)
+		Mode.TABLE:
+			if event.is_action_pressed("stand_up"):
+				_set_mode(Mode.WALK)
+		Mode.PANEL:
+			pass  # El panel maneja su propia entrada.
 
+
+func _handle_walk_input(event: InputEvent) -> void:
 	# Mirar con el ratón: el movimiento del ratón no es una tecla, por eso se
 	# lee como evento. Con control se agregarán acciones para el stick.
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -97,8 +127,9 @@ func _physics_process(delta: float) -> void:
 
 	# get_vector combina las 4 acciones en un vector 2D (x = lados,
 	# y = adelante/atrás) y ya maneja la diagonal para no ir más rápido.
+	# Fuera de CAMINAR el vector queda en cero y el jugador frena solo.
 	var input_dir := Vector2.ZERO
-	if _controls_enabled:
+	if _mode == Mode.WALK:
 		input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	# Convertimos ese vector a la orientación actual del jugador: "adelante"
 	# es hacia donde mira el cuerpo, no siempre el mismo eje del mundo.
@@ -114,7 +145,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, target_velocity.z, acceleration * delta)
 
 	move_and_slide()
-	if _controls_enabled:
+	if _mode == Mode.WALK:
 		_update_interaction_target()
 
 

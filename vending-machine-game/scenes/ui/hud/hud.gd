@@ -5,6 +5,7 @@ extends CanvasLayer
 ## Nunca pregunta nada en _process: solo reacciona a señales del EventBus,
 ## así no sabe ni le importa quién las emite.
 
+@onready var _crosshair: Label = %Crosshair
 @onready var _prompt_label: Label = %PromptLabel
 @onready var _money_label: Label = %MoneyLabel
 @onready var _inventory_label: Label = %InventoryLabel
@@ -20,9 +21,15 @@ func _ready() -> void:
 	EventBus.interaction_prompt_changed.connect(_on_interaction_prompt_changed)
 	EventBus.money_changed.connect(_on_money_changed)
 	EventBus.inventory_changed.connect(_on_inventory_changed)
+	EventBus.player_mode_changed.connect(_on_player_mode_changed)
 	# Valores iniciales: leemos una vez al arrancar; después, solo señales.
 	_on_money_changed(GameState.money)
 	_on_inventory_changed()
+
+
+## El punto de mira solo tiene sentido al caminar (GDD 11: en la mesa no hay).
+func _on_player_mode_changed(mode: int) -> void:
+	_crosshair.visible = mode == Player.Mode.WALK
 
 
 func _on_money_changed(amount: int) -> void:

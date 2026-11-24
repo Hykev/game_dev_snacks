@@ -37,6 +37,19 @@ signal vending_machine_opened()
 @warning_ignore("unused_signal")
 signal modal_ui_changed(is_open: bool)
 
+# --- Jugador y estaciones ---
+
+## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa
+## no toca al jugador: el jugador decide cómo cambiar de modo.
+@warning_ignore("unused_signal")
+signal table_sit_requested(view_camera: Camera3D)
+
+## El jugador cambió de modo. `mode` es un valor de Player.Mode (WALK,
+## TABLE, PANEL…). El HUD lo usa para ocultar el punto de mira y la mesa
+## para saber cuándo está activa.
+@warning_ignore("unused_signal")
+signal player_mode_changed(mode: int)
+
 ## El jugador empezó a mirar algo usable (prompt_text = "Sentarse", "Dormir"…)
 ## o dejó de mirarlo (prompt_text vacío). El HUD la usa para mostrar u ocultar
 ## la ayuda del centro de la pantalla.

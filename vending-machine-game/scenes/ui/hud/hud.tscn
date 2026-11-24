@@ -6,6 +6,7 @@
 script = ExtResource("1_hud")
 
 [node name="Crosshair" type="Label" parent="."]
+unique_name_in_owner = true
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5

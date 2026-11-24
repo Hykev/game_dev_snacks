@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="4_interactable"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/vending_machine.tscn" id="5_machine"]
 [ext_resource type="PackedScene" path="res://scenes/ui/vending/vending_panel.tscn" id="6_vending_panel"]
+[ext_resource type="PackedScene" path="res://scenes/eating/eating_station.tscn" id="7_station"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -83,6 +84,9 @@ shape = SubResource("BoxShape3D_interact")
 
 [node name="VendingMachine" parent="." instance=ExtResource("5_machine")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -1)
+
+[node name="EatingStation" parent="." instance=ExtResource("7_station")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1, 0, 4)
 
 [node name="HUD" parent="." instance=ExtResource("2_hud")]
 

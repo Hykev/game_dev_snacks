@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/eating/eating_station.gd" id="1_station"]
+[ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="2_interactable"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_table"]
+size = Vector3(1.6, 0.75, 0.9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_table"]
+size = Vector3(1.6, 0.75, 0.9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_seat"]
+size = Vector3(1.2, 0.45, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_seat"]
+size = Vector3(1.2, 0.45, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_interact"]
+size = Vector3(1.7, 0.9, 1.7)
+
+[node name="EatingStation" type="Node3D"]
+script = ExtResource("1_station")
+
+[node name="Table" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.375, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Table"]
+mesh = SubResource("BoxMesh_table")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Table"]
+shape = SubResource("BoxShape3D_table")
+
+[node name="Seat" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, 0.85)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Seat"]
+mesh = SubResource("BoxMesh_seat")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Seat"]
+shape = SubResource("BoxShape3D_seat")
+
+[node name="SeatInteractable" type="Area3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0.4)
+script = ExtResource("2_interactable")
+prompt_text = "Sentarse"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SeatInteractable"]
+shape = SubResource("BoxShape3D_interact")
+
+[node name="ViewCamera" type="Camera3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 0.6428, -0.766, 0, 0.766, 0.6428, 0, 1.45, 0.6)
+fov = 60.0
