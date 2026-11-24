@@ -18,6 +18,11 @@ func _ready() -> void:
 	_mesh.material_override = _material
 
 
+## Crece un poco mientras el cursor la señala.
+func set_highlighted(highlighted: bool) -> void:
+	scale = Vector3.ONE * (1.3 if highlighted else 1.0)
+
+
 func show_tazo(tazo: TazoData) -> void:
 	_material.albedo_color = TazoData.get_rarity_color(tazo.rarity)
 	_label.text = tazo.code

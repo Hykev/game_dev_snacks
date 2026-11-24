@@ -23,6 +23,9 @@ const TAZO_TOKEN_SCENE := preload("res://scenes/eating/tazo_token.tscn")
 # Cuadrícula de casillas de la zona de tazos: 2 columnas × 4 filas = 8.
 const TAZO_COLUMNS := 2
 const TAZO_ROWS := 4
+# Distancia (m) del cursor al centro de una ficha para considerarla señalada.
+# Un poco más que su radio (0.06) para que sea fácil apuntarle.
+const TAZO_PICK_RADIUS := 0.08
 # TEMPORAL: snacks colocados a la vez; cuida el presupuesto de física
 # (~6 cuerpos). Los dos límites los calculará Stats (Mesa Extensible).
 const MAX_SNACKS_ON_TABLE := 4
@@ -46,6 +49,11 @@ var _hovered_zone: TableZone = null
 var _hovered_snack: SnackBody = null
 # Grupo fijo (pool) de fichas: una por casilla de la zona de tazos.
 var _tazo_tokens: Array[TazoToken] = []
+# Índice de la ficha bajo el cursor (-1 si ninguna).
+var _hovered_tazo_index := -1
+# Mientras la carta de un tazo está abierta, la mesa no acepta entrada
+# (para no agarrar ni comer "a través" de la carta).
+var _is_card_open := false
 
 
 func _ready() -> void:
@@ -54,6 +62,7 @@ func _ready() -> void:
 	_table_surface.body_entered.connect(_on_table_surface_body_changed.bind(true))
 	_table_surface.body_exited.connect(_on_table_surface_body_changed.bind(false))
 	EventBus.table_tazos_changed.connect(_refresh_tazo_tokens)
+	EventBus.tazo_card_closed.connect(func() -> void: _is_card_open = false)
 	_create_tazo_tokens()
 	_refresh_tazo_tokens()
 	# Sin jugador sentado no hay nada que calcular cada frame.
@@ -74,12 +83,14 @@ func _create_tazo_tokens() -> void:
 ## Muestra en cada casilla el tazo que le toca (según GameState) y oculta
 ## las casillas libres. Se llama solo cuando llega la señal, no cada frame.
 func _refresh_tazo_tokens() -> void:
-	var tazo_ids := GameState.get_table_tazos()
+	var table_tazos := GameState.get_table_tazos()
 	for i in _tazo_tokens.size():
-		if i < tazo_ids.size():
-			_tazo_tokens[i].show_tazo(Database.get_tazo(tazo_ids[i]))
+		if i < table_tazos.size():
+			_tazo_tokens[i].show_tazo(Database.get_tazo(table_tazos[i]["tazo_id"]))
 		else:
 			_tazo_tokens[i].hide()
+	# Las fichas se corrieron de lugar: el resaltado anterior ya no aplica.
+	_set_hovered_tazo(-1)
 
 
 ## Un cuerpo entró o salió del volumen sobre la mesa. Solo nos importan los
@@ -117,6 +128,7 @@ func _on_player_mode_changed(mode: int) -> void:
 		_grab_controller.release()
 		_set_hovered_zone(null)
 		_set_hovered_snack(null)
+		_set_hovered_tazo(-1)
 
 
 func _physics_process(_delta: float) -> void:
@@ -131,6 +143,34 @@ func _physics_process(_delta: float) -> void:
 				break
 	_set_hovered_zone(zone)
 	_set_hovered_snack(_grab_controller.get_snack_under_cursor())
+	# Las fichas no tienen física: basta medir la distancia del cursor a cada
+	# una sobre la mesa. Si el cursor está sobre un snack, el snack gana.
+	var tazo_index := -1
+	if point != null and _hovered_snack == null and _grab_controller.held_body == null:
+		tazo_index = _find_tazo_token_at(point)
+	_set_hovered_tazo(tazo_index)
+
+
+func _find_tazo_token_at(point: Vector3) -> int:
+	for i in _tazo_tokens.size():
+		var token := _tazo_tokens[i]
+		if not token.visible:
+			continue
+		var offset := token.global_position - point
+		offset.y = 0.0
+		if offset.length() <= TAZO_PICK_RADIUS:
+			return i
+	return -1
+
+
+func _set_hovered_tazo(index: int) -> void:
+	if index == _hovered_tazo_index:
+		return
+	if _hovered_tazo_index >= 0:
+		_tazo_tokens[_hovered_tazo_index].set_highlighted(false)
+	_hovered_tazo_index = index
+	if index >= 0:
+		_tazo_tokens[index].set_highlighted(true)
 
 
 func _set_hovered_zone(zone: TableZone) -> void:
@@ -154,7 +194,7 @@ func _set_hovered_snack(body: SnackBody) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _is_active:
+	if not _is_active or _is_card_open:
 		return
 	for i in SLOT_ACTIONS.size():
 		if event.is_action_pressed(SLOT_ACTIONS[i]):
@@ -165,6 +205,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("grab"):
 		if _hovered_snack != null:
 			_grab_controller.start_grab(_hovered_snack)
+		elif _hovered_tazo_index >= 0:
+			# Clic sobre una ficha: la UI muestra su carta.
+			_is_card_open = true
+			EventBus.tazo_card_requested.emit(_hovered_tazo_index)
 	elif event.is_action_released("grab"):
 		_grab_controller.release()
 	elif event.is_action_pressed("interact"):

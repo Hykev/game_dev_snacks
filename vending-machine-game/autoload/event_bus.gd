@@ -63,6 +63,23 @@ signal tazo_found(tazo_id: StringName)
 @warning_ignore("unused_signal")
 signal table_tazos_changed()
 
+## Se guardó un tazo en la colección (los álbumes lo usarán).
+@warning_ignore("unused_signal")
+signal collection_changed()
+
+## Los Brillos cambiaron; `amount` es el total nuevo.
+@warning_ignore("unused_signal")
+signal shines_changed(amount: int)
+
+## La mesa pide mostrar la carta del tazo en la posición `index` de los
+## tazos sobre la mesa. La carta (UI) responde.
+@warning_ignore("unused_signal")
+signal tazo_card_requested(index: int)
+
+## La carta del tazo se cerró; la mesa vuelve a aceptar entrada.
+@warning_ignore("unused_signal")
+signal tazo_card_closed()
+
 # --- Jugador y estaciones ---
 
 ## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa

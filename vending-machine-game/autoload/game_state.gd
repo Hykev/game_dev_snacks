@@ -34,6 +34,13 @@ var money: int:
 
 var _money: int = STARTING_MONEY
 
+## Brillos (✦): moneda mágica que solo sale de reciclar tazos (GDD 7).
+var shines: int:
+	get:
+		return _shines
+
+var _shines: int = 0
+
 ## Suerte actual (0.0 = 0 %, 0.5 = 50 %). La calculará Stats con mejoras,
 ## álbumes y bebidas; por ahora siempre es 0.
 var luck: float:
@@ -47,8 +54,14 @@ var _luck: float = 0.0
 var _rng := RandomNumberGenerator.new()
 
 # Tazos que salieron y esperan sobre la mesa a que el jugador decida
-# (coleccionar, vender o reciclar). Solo ids, en orden de llegada.
-var _table_tazos: Array[StringName] = []
+# (coleccionar, vender o reciclar), en orden de llegada. Cada uno es
+# {"tazo_id", "snack_id"}: se recuerda de qué snack salió porque su precio
+# de venta depende de ese snack (y el Basura puede salir de cualquiera).
+var _table_tazos: Array[Dictionary] = []
+
+# Colección: ids de los tazos que el jugador guardó en sus álbumes. Se usa
+# un diccionario como "conjunto" para preguntar rápido si ya lo tiene.
+var _collection: Dictionary[StringName, bool] = {}
 
 # Un elemento por espacio de la barra rápida. Espacio vacío = {}.
 # Espacio ocupado = {"snack_id": StringName, "count": int}. Solo ids y
@@ -171,9 +184,77 @@ func restock_machine() -> void:
 
 # --- Tazos ---
 
-## Copia de los tazos que esperan sobre la mesa (ids, en orden de llegada).
-func get_table_tazos() -> Array[StringName]:
-	return _table_tazos.duplicate()
+## Copia de los tazos que esperan sobre la mesa, en orden de llegada.
+## Cada uno es {"tazo_id", "snack_id"}.
+func get_table_tazos() -> Array[Dictionary]:
+	return _table_tazos.duplicate(true)
+
+
+func has_in_collection(tazo_id: StringName) -> bool:
+	return _collection.has(tazo_id)
+
+
+## ¿Se puede coleccionar el tazo de la mesa `index`? Solo si no lo tienes y
+## si tiene álbum (el Basura no tiene casilla en ningún álbum).
+func can_collect_table_tazo(index: int) -> bool:
+	var tazo := _get_table_tazo_data(index)
+	return tazo != null and tazo.rarity != TazoData.Rarity.JUNK \
+			and not has_in_collection(tazo.id)
+
+
+## Cuánto pagaría hoy vender el tazo de la mesa `index` (para la carta).
+func get_table_tazo_sale_price(index: int) -> int:
+	var tazo := _get_table_tazo_data(index)
+	if tazo == null:
+		return 0
+	var snack := Database.get_snack(_table_tazos[index]["snack_id"])
+	return Economy.get_sale_price(tazo, snack.price)
+
+
+## Guarda el tazo de la mesa en la colección. Devuelve false si no se puede.
+func collect_table_tazo(index: int) -> bool:
+	if not can_collect_table_tazo(index):
+		return false
+	_collection[_table_tazos[index]["tazo_id"]] = true
+	_remove_table_tazo(index)
+	EventBus.collection_changed.emit()
+	return true
+
+
+## Vende el tazo de la mesa. Devuelve el dinero ganado (-1 si no existe).
+## TEMPORAL: paga al instante. Con el reloj del día (paso 7) irá a la caja
+## de envío y el repartidor pagará al recogerla (GDD 5.8).
+func sell_table_tazo(index: int) -> int:
+	if _get_table_tazo_data(index) == null:
+		return -1
+	var price := get_table_tazo_sale_price(index)
+	_remove_table_tazo(index)
+	add_money(price)
+	return price
+
+
+## Recicla el tazo de la mesa en Brillos. Devuelve los Brillos ganados
+## (-1 si no existe).
+func recycle_table_tazo(index: int) -> int:
+	var tazo := _get_table_tazo_data(index)
+	if tazo == null:
+		return -1
+	var gained := Economy.get_recycle_shines(tazo)
+	_remove_table_tazo(index)
+	_shines += gained
+	EventBus.shines_changed.emit(_shines)
+	return gained
+
+
+func _get_table_tazo_data(index: int) -> TazoData:
+	if index < 0 or index >= _table_tazos.size():
+		return null
+	return Database.get_tazo(_table_tazos[index]["tazo_id"])
+
+
+func _remove_table_tazo(index: int) -> void:
+	_table_tazos.remove_at(index)
+	EventBus.table_tazos_changed.emit()
 
 
 ## Se terminó un snack: tira su premio con LootSystem y deja el tazo sobre
@@ -186,7 +267,7 @@ func resolve_finished_snack(snack_id: StringName) -> StringName:
 		push_error("GameState: snack desconocido '%s'" % snack_id)
 		return &""
 	var tazo := LootSystem.roll_tazo(snack, _luck, _rng, Database.get_junk_tazo())
-	_table_tazos.append(tazo.id)
+	_table_tazos.append({"tazo_id": tazo.id, "snack_id": snack_id})
 	EventBus.tazo_found.emit(tazo.id)
 	EventBus.table_tazos_changed.emit()
 	return tazo.id

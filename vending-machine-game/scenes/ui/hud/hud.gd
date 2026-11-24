@@ -19,11 +19,14 @@ func _ready() -> void:
 	_interact_key_name = _get_action_key_name("interact")
 	_prompt_label.hide()
 	EventBus.interaction_prompt_changed.connect(_on_interaction_prompt_changed)
-	EventBus.money_changed.connect(_on_money_changed)
+	# Dinero y Brillos van en la misma etiqueta: cualquiera de las dos
+	# señales la redibuja (unbind quita el argumento que no usamos).
+	EventBus.money_changed.connect(_refresh_currencies.unbind(1))
+	EventBus.shines_changed.connect(_refresh_currencies.unbind(1))
 	EventBus.inventory_changed.connect(_on_inventory_changed)
 	EventBus.player_mode_changed.connect(_on_player_mode_changed)
 	# Valores iniciales: leemos una vez al arrancar; después, solo señales.
-	_on_money_changed(GameState.money)
+	_refresh_currencies()
 	_on_inventory_changed()
 
 
@@ -32,8 +35,9 @@ func _on_player_mode_changed(mode: int) -> void:
 	_crosshair.visible = mode == Player.Mode.WALK
 
 
-func _on_money_changed(amount: int) -> void:
-	_money_label.text = "$%d" % amount
+## Arriba a la derecha: «$25   ✦ 4» (GDD 11).
+func _refresh_currencies() -> void:
+	_money_label.text = "$%d   ✦ %d" % [GameState.money, GameState.shines]
 
 
 ## Arma el texto de la barra: «1: Lazy's ×2   2: —   3: —».
