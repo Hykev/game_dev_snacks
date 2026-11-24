@@ -16,7 +16,7 @@ El loop completo comprar → comer → tazo → vender → baño → dormir → 
 ## Guardado y envíos (pendientes menores)
 
 - `meta.json` para los Ecos (cuando existan) y menú principal con 3 ranuras (hoy siempre ranura 1, se carga sola al iniciar).
-- Para empezar de cero: borrar `%APPDATA%\Godotpp_userdataending-machine-game\save_slot_1.json` (falta un menú de depuración F1 que lo haga).
+- Para empezar de cero: borrar `%APPDATA%\Godot\app_userdata\vending-machine-game\save_slot_1.json` (falta un menú de depuración F1 que lo haga).
 - Al cargar, el jugador aparece en su posición inicial de la escena (no se guardan posiciones).
 - Envíos: falta publicar desde la app TazoBay del teléfono, las notas del repartidor y las mejoras (Recolección a Domicilio, Repartidor Puntual, Venta Instantánea).
 - Decisiones tomadas que el GDD no define: sueño a las 00:00 = 70 % de velocidad; dormir conserva la llenura; al despertar (también tras desmayo) el jugador aparece junto a la cama (`Bed/WakePoint`); en el baño con el estómago vacío se queda sentado hasta Q; el repartidor pasa en horas pares desde las 08:00 (10:00, 12:00…).
