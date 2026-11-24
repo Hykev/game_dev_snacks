@@ -22,6 +22,9 @@ enum Mode {
 const MAX_STACKED_INTERACTABLES := 4
 # GDD 5.4: con la llenura al tope se camina a la mitad de velocidad.
 const FULL_SPEED_MULTIPLIER := 0.5
+# GDD 4: desde las 00:00 al personaje le da sueño y camina más lento.
+# El GDD no da el número: 70 % es una primera propuesta.
+const SLEEPY_SPEED_MULTIPLIER := 0.7
 # Altura de los ojos sentado (en el baño) y duración de la animación al
 # sentarse o pararse. La altura de pie se lee de la escena al iniciar.
 const SEATED_HEAD_HEIGHT := 1.1
@@ -58,6 +61,8 @@ var _current_interactable: Interactable = null
 # Multiplicador de velocidad por llenura. Se actualiza solo cuando llega la
 # señal fullness_changed, no se pregunta a GameState cada frame.
 var _fullness_speed_multiplier := 1.0
+# Multiplicador por sueño (00:00 en adelante). Se combina con el de llenura.
+var _sleepy_speed_multiplier := 1.0
 # Altura de la cabeza de pie (la de la escena) y animación en curso.
 var _standing_head_height := 0.0
 var _head_tween: Tween
@@ -73,7 +78,12 @@ func _ready() -> void:
 	EventBus.toilet_sit_requested.connect(_set_mode.bind(Mode.BATHROOM))
 	EventBus.toilet_finished.connect(_on_toilet_finished)
 	EventBus.fullness_changed.connect(_on_fullness_changed)
+	EventBus.sleepy_changed.connect(_on_sleepy_changed)
 	_set_mode(Mode.WALK)
+
+
+func _on_sleepy_changed(is_sleepy: bool) -> void:
+	_sleepy_speed_multiplier = SLEEPY_SPEED_MULTIPLIER if is_sleepy else 1.0
 
 
 func _on_fullness_changed(current: float, maximum: float) -> void:
@@ -199,7 +209,8 @@ func _physics_process(delta: float) -> void:
 	# es hacia donde mira el cuerpo, no siempre el mismo eje del mundo.
 	var direction := transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)
 
-	var speed := walk_speed * _fullness_speed_multiplier
+	# Lleno y con sueño a la vez se combinan (0,5 × 0,7 = 35 %).
+	var speed := walk_speed * _fullness_speed_multiplier * _sleepy_speed_multiplier
 	if Input.is_action_pressed("sprint"):
 		speed *= sprint_multiplier
 

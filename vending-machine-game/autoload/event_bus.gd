@@ -95,6 +95,28 @@ signal toilet_sit_requested()
 @warning_ignore("unused_signal")
 signal toilet_finished()
 
+# --- Reloj (las emite TimeManager) ---
+
+## Cambió el minuto entero del reloj. `minute` cuenta desde las 00:00 del
+## día en curso y pasa de 1440 después de medianoche (ver TimeManager).
+@warning_ignore("unused_signal")
+signal clock_changed(minute: int)
+
+## Pasaron `minutes` minutos de juego enteros (casi siempre 1). Lo usa la
+## digestión pasiva.
+@warning_ignore("unused_signal")
+signal game_minutes_passed(minutes: int)
+
+## A las 00:00 al personaje le da sueño (true); al empezar el día se le
+## quita (false).
+@warning_ignore("unused_signal")
+signal sleepy_changed(is_sleepy: bool)
+
+## Llegaron las 02:00: el personaje se desmaya. El reloj ya se detuvo;
+## quien escuche decide qué pasa (perder efectivo y terminar el día).
+@warning_ignore("unused_signal")
+signal faint_time_reached()
+
 # --- Jugador y estaciones ---
 
 ## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa

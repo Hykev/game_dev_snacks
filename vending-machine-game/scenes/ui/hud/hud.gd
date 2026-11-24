@@ -18,6 +18,7 @@ const FULLNESS_COLOR_FULL := Color(0.9, 0.2, 0.2)
 @onready var _inventory_label: Label = %InventoryLabel
 @onready var _fullness_bar: ProgressBar = %FullnessBar
 @onready var _hint_label: Label = %HintLabel
+@onready var _clock_label: Label = %ClockLabel
 
 # Nombres de las teclas de "interact" y "stand_up" (ej. "E", "Q"). Se leen
 # del Input Map en vez de escribirlas fijas, para respetar si se reasignan.
@@ -32,6 +33,8 @@ func _ready() -> void:
 	_hint_label.hide()
 	EventBus.fullness_changed.connect(_on_fullness_changed)
 	_on_fullness_changed(GameState.fullness, GameState.MAX_FULLNESS)
+	EventBus.clock_changed.connect(_refresh_clock.unbind(1))
+	_refresh_clock()
 	EventBus.interaction_prompt_changed.connect(_on_interaction_prompt_changed)
 	# Dinero y Brillos van en la misma etiqueta: cualquiera de las dos
 	# señales la redibuja (unbind quita el argumento que no usamos).
@@ -51,6 +54,12 @@ func _on_player_mode_changed(mode: int) -> void:
 	var seated := mode == Player.Mode.TABLE or mode == Player.Mode.BATHROOM
 	_hint_label.text = "%s · %s" % [_stand_up_key_name, tr("Levantarse")]
 	_hint_label.visible = seated
+
+
+## Arriba a la izquierda: «Día 4 · 15:30» (GDD 11). Los días para el
+## próximo pago se agregarán con la deuda.
+func _refresh_clock() -> void:
+	_clock_label.text = tr("Día %d · %s") % [GameState.day, TimeManager.get_clock_text()]
 
 
 ## Barra de llenura: verde, naranja desde 80 y roja al tope.

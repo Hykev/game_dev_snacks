@@ -24,6 +24,9 @@ const STARTING_UNLOCKED_SNACKS: Array[StringName] = [&"lzy", &"drk"]
 const MAX_TABLE_TAZOS := 8
 # Llenura máxima (GDD 5.4). La subirá la mejora «Estómago Elástico».
 const MAX_FULLNESS := 100.0
+# Digestión pasiva: −1 de llenura cada 10 min de juego (GDD 5.4). La
+# mejorará «Metabolismo de Colibrí».
+const DIGESTION_PER_GAME_MINUTE := 0.1
 
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
@@ -42,6 +45,13 @@ var shines: int:
 		return _shines
 
 var _shines: int = 0
+
+## Día de la partida (1 = primer día). Lo avanza el flujo de dormir.
+var day: int:
+	get:
+		return _day
+
+var _day: int = 1
 
 ## Llenura del estómago (0 a MAX_FULLNESS). Es decimal porque la digestión y
 ## el baño la bajan poco a poco; en pantalla se muestra redondeada.
@@ -90,6 +100,13 @@ func _ready() -> void:
 	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
 	restock_machine()
 	_rng.randomize()
+	# La digestión es una regla del estado del jugador: GameState escucha el
+	# paso del tiempo y baja su propia llenura.
+	EventBus.game_minutes_passed.connect(_on_game_minutes_passed)
+
+
+func _on_game_minutes_passed(minutes: int) -> void:
+	reduce_fullness(DIGESTION_PER_GAME_MINUTE * minutes)
 
 
 # --- Dinero ---
