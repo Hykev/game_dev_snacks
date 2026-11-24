@@ -24,6 +24,9 @@ func _ready() -> void:
 	EventBus.money_changed.connect(_on_state_changed.unbind(1))
 	EventBus.inventory_changed.connect(_on_state_changed)
 	EventBus.machine_stock_changed.connect(_on_state_changed)
+	# Si el día termina (desmayo a las 02:00) con el panel abierto, se oculta
+	# sin avisar: la pantalla del resumen toma el control del ratón.
+	EventBus.day_ended.connect(func(_summary: Dictionary) -> void: _root.hide())
 
 
 func open() -> void:

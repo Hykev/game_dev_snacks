@@ -5,20 +5,14 @@ Lo marcado **TEMPORAL** en el código (comentarios `TEMPORAL:`) está explicado 
 
 ## Estado actual (prototipo gris)
 
-Hecho: pasos 1–6 (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño).
-El loop comprar → comer → tazo → vender → baño funciona en `scenes/world/test_room.tscn`.
+Hecho: pasos 1–6, 7a y 7b (proyecto, jugador, Interactable, máquina con panel 2D, mesa con zonas, agarrar/abrir/comer, tazos con LootSystem, carta con coleccionar/vender/reciclar, llenura y baño, reloj del día con digestión y sueño, cama con confirmación, desmayo a las 02:00, resumen del día y día siguiente).
+El loop comprar → comer → tazo → vender → baño → dormir funciona en `scenes/world/test_room.tscn`. El fin del día lo coordina `DayCycle` (scenes/world/day_cycle.gd).
 
-## Siguiente: paso 7 — el día, dormir y guardar
+## Siguiente: paso 7c y 7d
 
-- `TimeManager`: 1 s real = 3 min de juego; día jugable 08:00–02:00 (6 min reales); pausa en menús y diálogos, no en el teléfono. Avisos de hora (08:00, 00:00, 02:00).
-- 00:00: sueño (camina más lento). 02:00: se desmaya y pierde 10 % del efectivo.
-- Cama: «E · Dormir»; pide confirmación antes de las 22:00. Termina el día.
-- Resumen del día (recibo): comido, tazos, ganado, gastado, días para el pago.
-- `SaveManager`: JSON en `user://` con número de versión, 3 ranuras, `meta.json` aparte para Ecos. Solo ids y números. Autoguardado al dormir.
-- Al guardar a mitad del día, lo que hay en la mesa vuelve al inventario.
-- Digestión pasiva: −1 de llenura cada 10 min de juego (GDD 5.4).
-- Reponer el stock de la máquina a las 08:00 (`GameState.restock_machine()` ya existe).
-- Repartidor: la venta deja de pagar al instante; los tazos van a la caja de envío y el repartidor paga cada 2 h de juego (GDD 5.8). Hoy `GameState.sell_table_tazo()` paga al instante (TEMPORAL).
+- **7c `SaveManager`:** JSON en `user://` con número de versión, 3 ranuras, `meta.json` aparte para Ecos. Solo ids y números (GameState: dinero, Brillos, día, llenura, inventario, colección, tazos en mesa, stock, casillas activas, semilla del RNG). Autoguardado al cerrar el resumen del día (en `DayCycle`). Al guardar a mitad del día, lo que hay en la mesa vuelve al inventario.
+- **7d Repartidor:** la venta deja de pagar al instante; los tazos van a la caja de envío y el repartidor paga cada 2 h de juego (GDD 5.8). Hoy `GameState.sell_table_tazo()` paga al instante (TEMPORAL).
+- Decisiones tomadas en 7b que el GDD no define: al dormir la llenura vuelve a 0; al despertar el jugador sigue donde estaba (no en la cama); sueño a las 00:00 = 70 % de velocidad.
 
 ## Después del paso 7
 

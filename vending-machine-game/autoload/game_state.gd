@@ -27,6 +27,8 @@ const MAX_FULLNESS := 100.0
 # Digestión pasiva: −1 de llenura cada 10 min de juego (GDD 5.4). La
 # mejorará «Metabolismo de Colibrí».
 const DIGESTION_PER_GAME_MINUTE := 0.1
+# Parte del efectivo que se pierde al desmayarse a las 02:00 (GDD 4).
+const FAINT_MONEY_LOSS := 0.10
 
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
@@ -52,6 +54,9 @@ var day: int:
 		return _day
 
 var _day: int = 1
+# Cifras del día en curso para el resumen al dormir (GDD 4). Se reinician
+# al empezar cada día.
+var _day_stats: Dictionary = {}
 
 ## Llenura del estómago (0 a MAX_FULLNESS). Es decimal porque la digestión y
 ## el baño la bajan poco a poco; en pantalla se muestra redondeada.
@@ -100,6 +105,7 @@ func _ready() -> void:
 	_unlocked_snacks = STARTING_UNLOCKED_SNACKS.duplicate()
 	restock_machine()
 	_rng.randomize()
+	_reset_day_stats()
 	# La digestión es una regla del estado del jugador: GameState escucha el
 	# paso del tiempo y baja su propia llenura.
 	EventBus.game_minutes_passed.connect(_on_game_minutes_passed)
@@ -107,6 +113,48 @@ func _ready() -> void:
 
 func _on_game_minutes_passed(minutes: int) -> void:
 	reduce_fullness(DIGESTION_PER_GAME_MINUTE * minutes)
+
+
+# --- Día ---
+
+## Cierra el día y devuelve sus cifras para la pantalla de resumen.
+## `fainted` = true si terminó por desmayo (02:00).
+func end_day(fainted: bool) -> Dictionary:
+	var summary := _day_stats.duplicate()
+	summary["day"] = _day
+	summary["fainted"] = fainted
+	return summary
+
+
+## Empieza el día siguiente: avanza el número de día, reinicia las cifras,
+## repone la máquina (GDD 4: a las 08:00) y vacía el estómago (6 horas de
+## digestión durante la noche).
+func start_next_day() -> void:
+	_day += 1
+	_reset_day_stats()
+	restock_machine()
+	_set_fullness(0.0)
+
+
+## GDD 4: a las 02:00 se desmaya y pierde el 10 % del efectivo «por la
+## pizza que pidió dormido». Devuelve cuánto perdió.
+func apply_faint_penalty() -> int:
+	var lost := floori(_money * FAINT_MONEY_LOSS)
+	if lost > 0:
+		_money -= lost
+		_day_stats["money_lost"] += lost
+		EventBus.money_changed.emit(_money)
+	return lost
+
+
+func _reset_day_stats() -> void:
+	_day_stats = {
+		"snacks_eaten": 0,
+		"tazos_found": 0,
+		"money_earned": 0,
+		"money_spent": 0,
+		"money_lost": 0,
+	}
 
 
 # --- Dinero ---
@@ -120,6 +168,7 @@ func spend_money(amount: int) -> bool:
 	if amount < 0 or not can_afford(amount):
 		return false
 	_money -= amount
+	_day_stats["money_spent"] += amount
 	EventBus.money_changed.emit(_money)
 	return true
 
@@ -128,6 +177,7 @@ func add_money(amount: int) -> void:
 	if amount <= 0:
 		return
 	_money += amount
+	_day_stats["money_earned"] += amount
 	EventBus.money_changed.emit(_money)
 
 
@@ -324,6 +374,10 @@ func resolve_finished_snack(snack_id: StringName) -> StringName:
 		return &""
 	var tazo := LootSystem.roll_tazo(snack, _luck, _rng, Database.get_junk_tazo())
 	_table_tazos.append({"tazo_id": tazo.id, "snack_id": snack_id})
+	_day_stats["snacks_eaten"] += 1
+	# "Tazos encontrados" = premios de verdad; el Basura no cuenta.
+	if tazo.rarity != TazoData.Rarity.JUNK:
+		_day_stats["tazos_found"] += 1
 	EventBus.tazo_found.emit(tazo.id)
 	EventBus.table_tazos_changed.emit()
 	return tazo.id

@@ -117,6 +117,33 @@ signal sleepy_changed(is_sleepy: bool)
 @warning_ignore("unused_signal")
 signal faint_time_reached()
 
+# --- Dormir y fin del día ---
+
+## La cama pide dormir. DayCycle decide si hace falta confirmar.
+@warning_ignore("unused_signal")
+signal sleep_requested()
+
+## DayCycle pide confirmar porque es temprano (antes de las 22:00).
+@warning_ignore("unused_signal")
+signal sleep_confirmation_requested(clock_text: String)
+
+## El jugador respondió la confirmación de dormir.
+@warning_ignore("unused_signal")
+signal sleep_confirmation_answered(accepted: bool)
+
+## Terminó el día. `summary` trae las cifras para el resumen (ver
+## GameState.end_day()). La pantalla de resumen la muestra.
+@warning_ignore("unused_signal")
+signal day_ended(summary: Dictionary)
+
+## El jugador cerró el resumen del día: empieza el siguiente.
+@warning_ignore("unused_signal")
+signal day_summary_closed()
+
+## Empezó un día nuevo (08:00).
+@warning_ignore("unused_signal")
+signal day_started(day: int)
+
 # --- Jugador y estaciones ---
 
 ## La mesa pide que el jugador se siente y le pasa su cámara fija. La mesa

@@ -45,6 +45,10 @@ func _ready() -> void:
 	_sell_button.pressed.connect(_on_sell_pressed)
 	_recycle_button.pressed.connect(_on_recycle_pressed)
 	_close_button.pressed.connect(close)
+	# Si el día termina (desmayo) con la carta abierta, se cierra.
+	EventBus.day_ended.connect(func(_summary: Dictionary) -> void:
+		if _root.visible:
+			close())
 	# Clic fuera de la carta (sobre el fondo oscuro) también la cierra.
 	_dimmer.gui_input.connect(_on_dimmer_gui_input)
 

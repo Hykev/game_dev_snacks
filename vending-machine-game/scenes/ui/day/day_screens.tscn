@@ -1,0 +1,99 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/day/day_screens.gd" id="1_day"]
+
+[node name="DayScreens" type="CanvasLayer"]
+layer = 3
+script = ExtResource("1_day")
+
+[node name="ConfirmPanel" type="ColorRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5)
+
+[node name="Center" type="CenterContainer" parent="ConfirmPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="ConfirmPanel/Center"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="ConfirmPanel/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="ConfirmPanel/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ConfirmLabel" type="Label" parent="ConfirmPanel/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="ConfirmPanel/Center/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="YesButton" type="Button" parent="ConfirmPanel/Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sí, dormir"
+
+[node name="NoButton" type="Button" parent="ConfirmPanel/Center/Panel/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Todavía no"
+
+[node name="SummaryPanel" type="ColorRect" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 0.92)
+
+[node name="Center" type="CenterContainer" parent="SummaryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="SummaryPanel/Center"]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="SummaryPanel/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="SummaryPanel/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SummaryLabel" type="Label" parent="SummaryPanel/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ContinueButton" type="Button" parent="SummaryPanel/Center/Panel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Continuar"

@@ -9,6 +9,9 @@
 [ext_resource type="PackedScene" path="res://scenes/eating/eating_station.tscn" id="7_station"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tazo_card/tazo_card.tscn" id="8_tazo_card"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/toilet.tscn" id="9_toilet"]
+[ext_resource type="PackedScene" path="res://scenes/world/interactables/bed.tscn" id="10_bed"]
+[ext_resource type="PackedScene" path="res://scenes/ui/day/day_screens.tscn" id="11_day_screens"]
+[ext_resource type="Script" path="res://scenes/world/day_cycle.gd" id="12_day_cycle"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -102,3 +105,11 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1, 0, 4)
 
 [node name="Toilet" parent="." instance=ExtResource("9_toilet")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)
+
+[node name="Bed" parent="." instance=ExtResource("10_bed")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 6)
+
+[node name="DayCycle" type="Node" parent="."]
+script = ExtResource("12_day_cycle")
+
+[node name="DayScreens" parent="." instance=ExtResource("11_day_screens")]
