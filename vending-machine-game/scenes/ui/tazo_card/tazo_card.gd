@@ -1,6 +1,6 @@
 extends CanvasLayer
 ## Carta de un tazo de la mesa: muestra sus datos y deja Coleccionar,
-## Vender o Reciclar (GDD 5.8 y 11).
+## Empacar (para vender) o Reciclar (GDD 5.8 y 11).
 ##
 ## La abre la señal tazo_card_requested (la emite la mesa). Para actuar le
 ## PIDE a GameState; nunca toca dinero, Brillos ni colección por su cuenta.
@@ -30,7 +30,7 @@ const RARITY_NAMES: Dictionary = {
 @onready var _back_label: Label = %BackLabel
 @onready var _status_label: Label = %StatusLabel
 @onready var _collect_button: Button = %CollectButton
-@onready var _sell_button: Button = %SellButton
+@onready var _pack_button: Button = %SellButton
 @onready var _recycle_button: Button = %RecycleButton
 @onready var _close_button: Button = %CloseButton
 
@@ -42,7 +42,7 @@ func _ready() -> void:
 	_root.hide()
 	EventBus.tazo_card_requested.connect(open)
 	_collect_button.pressed.connect(_on_collect_pressed)
-	_sell_button.pressed.connect(_on_sell_pressed)
+	_pack_button.pressed.connect(_on_pack_pressed)
 	_recycle_button.pressed.connect(_on_recycle_pressed)
 	_close_button.pressed.connect(close)
 	# Si el día termina (desmayo) con la carta abierta, se cierra.
@@ -77,7 +77,12 @@ func open(index: int) -> void:
 	# GDD 5.8: si no se puede coleccionar, el botón queda en gris.
 	_collect_button.disabled = not can_collect
 
-	_sell_button.text = tr("Vender ($%d)") % GameState.get_table_tazo_sale_price(index)
+	# Empacar = mandarlo a la caja de envío. Solo si la caja está junto a
+	# la mesa; si no, el botón queda en gris y se explica por qué.
+	_pack_button.text = tr("Empacar ($%d)") % GameState.get_table_tazo_sale_price(index)
+	_pack_button.disabled = not GameState.can_pack()
+	if not GameState.can_pack():
+		_status_label.text += "\n" + tr("La caja de envío no está junto a la mesa")
 	_recycle_button.text = tr("Reciclar (✦%d)") % Economy.get_recycle_shines(tazo)
 	_root.show()
 
@@ -104,9 +109,10 @@ func _on_collect_pressed() -> void:
 	close()
 
 
-func _on_sell_pressed() -> void:
-	var price := GameState.sell_table_tazo(_index)
-	EventBus.notification_requested.emit(tr("A la caja de envío: $%d") % price)
+func _on_pack_pressed() -> void:
+	var price := GameState.pack_table_tazo(_index)
+	if price >= 0:
+		EventBus.notification_requested.emit(tr("Empacado en la caja de envío: $%d") % price)
 	close()
 
 

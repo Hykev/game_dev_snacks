@@ -203,7 +203,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	for i in SLOT_ACTIONS.size():
 		if event.is_action_pressed(SLOT_ACTIONS[i]):
-			_place_snack_from_slot(i)
+			# La caja de envío vuelve a su lugar junto a la mesa; un snack cae
+			# en la zona de comer.
+			if GameState.is_slot_box(i):
+				GameState.put_box_on_table()
+			else:
+				_place_snack_from_slot(i)
 			get_viewport().set_input_as_handled()
 			return
 

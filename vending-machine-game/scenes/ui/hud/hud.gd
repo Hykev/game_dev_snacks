@@ -58,16 +58,18 @@ func _ready() -> void:
 	_on_inventory_changed()
 
 
-## Debajo del dinero: qué hay en la caja de envío y qué espera en la puerta.
-## Se oculta si no hay nada.
+## Debajo del dinero: qué hay en la caja de envío y el dinero que dejó el
+## repartidor en la puerta. Se oculta si no hay nada.
 func _refresh_shipping() -> void:
 	var parts: PackedStringArray = []
 	if GameState.get_shipping_box_count() > 0:
 		parts.append(tr("Caja: %d ($%d)") % [GameState.get_shipping_box_count(), GameState.get_shipping_box_total()])
-	if GameState.get_door_box_count() > 0:
-		parts.append(tr("En la puerta: %d ($%d)") % [GameState.get_door_box_count(), GameState.get_door_box_total()])
+	if GameState.get_door_money() > 0:
+		parts.append(tr("Dinero en la puerta: $%d") % GameState.get_door_money())
 	_shipping_label.text = "\n".join(parts)
 	_shipping_label.visible = not parts.is_empty()
+	# La barra de inventario también muestra cuántos tazos lleva la caja.
+	_on_inventory_changed()
 
 
 ## Aviso corto a la derecha (GDD 11: notificaciones tipo toast). Aparece,
@@ -127,6 +129,10 @@ func _on_inventory_changed() -> void:
 		if slot.is_empty():
 			parts.append("%d: —" % (i + 1))
 		else:
+			if slot.has("special"):
+				# La caja de envío ocupa un espacio completo.
+				parts.append(tr("%d: Caja de envío (%d)") % [i + 1, GameState.get_shipping_box_count()])
+				continue
 			var snack := Database.get_snack(slot["snack_id"])
 			if slot.has("bites_left"):
 				# Abierto: ocupa el espacio solo; mostramos sus bocados.

@@ -90,7 +90,7 @@ text = "Coleccionar"
 [node name="SellButton" type="Button" parent="Root/Center/Panel/Margin/VBox/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Vender"
+text = "Empacar"
 
 [node name="RecycleButton" type="Button" parent="Root/Center/Panel/Margin/VBox/Buttons"]
 unique_name_in_owner = true

@@ -31,6 +31,11 @@ const DIGESTION_PER_GAME_MINUTE := 1.0 / 30.0
 # Parte del efectivo que se pierde al desmayarse a las 02:00 (GDD 4).
 const FAINT_MONEY_LOSS := 0.10
 
+## Dónde está la caja de envío (es un objeto único).
+enum BoxLocation { TABLE, INVENTORY, DOOR }
+## Cómo se marca la caja dentro de un espacio del inventario.
+const SHIPPING_BOX_ITEM := &"shipping_box"
+
 ## Resultado de intentar comprar: la UI lo usa para explicar qué pasó.
 enum BuyResult { OK, UNKNOWN_SNACK, LOCKED, SOLD_OUT, NO_MONEY, NO_ROOM }
 
@@ -95,11 +100,12 @@ var _collection: Dictionary[StringName, bool] = {}
 # cargar, la mesa los vuelve a crear. No se guardan posiciones (GDD 14).
 var _loose_snacks: Array[Dictionary] = []
 
-# Venta (GDD 5.8): los tazos vendidos van a la caja de envío como
-# {"tazo_id", "price"} (el precio se fija al vender). Al dejar la caja en la
-# puerta pasan a _door_box, y el repartidor paga lo que haya ahí.
+# Venta (GDD 5.8): los tazos empacados van a la caja de envío como
+# {"tazo_id", "price"} (el precio se fija al empacar). Dónde está la caja y
+# el dinero que dejó el repartidor en la bandeja de la puerta.
 var _shipping_box: Array[Dictionary] = []
-var _door_box: Array[Dictionary] = []
+var _box_location: BoxLocation = BoxLocation.TABLE
+var _door_money: int = 0
 
 # Un elemento por espacio de la barra rápida. Espacio vacío = {}.
 # Espacio ocupado = {"snack_id": StringName, "count": int}. Solo ids y
@@ -205,7 +211,8 @@ func get_save_data() -> Dictionary:
 		"table_tazos": _table_tazos.duplicate(true),
 		"loose_snacks": _loose_snacks.duplicate(true),
 		"shipping_box": _shipping_box.duplicate(true),
-		"door_box": _door_box.duplicate(true),
+		"box_location": _box_location,
+		"door_money": _door_money,
 		"unlocked_snacks": _unlocked_snacks.duplicate(),
 		"machine_stock": stock,
 		"rng_seed": str(_rng.seed),
@@ -225,7 +232,10 @@ func apply_save_data(data: Dictionary) -> void:
 
 	_inventory.clear()
 	for slot: Dictionary in data.get("inventory", []):
-		_inventory.append(_parse_snack_entry(slot, true))
+		if slot.has("special"):
+			_inventory.append({"special": StringName(slot["special"])})
+		else:
+			_inventory.append(_parse_snack_entry(slot, true))
 	# resize en un arreglo tipado rellena los espacios nuevos con {} (vacío).
 	_inventory.resize(INVENTORY_SLOTS)
 
@@ -249,9 +259,13 @@ func apply_save_data(data: Dictionary) -> void:
 	_shipping_box.clear()
 	for item: Dictionary in data.get("shipping_box", []):
 		_shipping_box.append({"tazo_id": StringName(item["tazo_id"]), "price": int(item["price"])})
-	_door_box.clear()
-	for item: Dictionary in data.get("door_box", []):
-		_door_box.append({"tazo_id": StringName(item["tazo_id"]), "price": int(item["price"])})
+	_box_location = int(data.get("box_location", BoxLocation.TABLE)) as BoxLocation
+	_door_money = int(data.get("door_money", 0))
+	# Si dice que la caja está en el inventario pero no está en ningún
+	# espacio (partida dañada), se devuelve a la mesa para no perderla.
+	if _box_location == BoxLocation.INVENTORY and not _inventory.any(
+			func(slot: Dictionary) -> bool: return slot.has("special")):
+		_box_location = BoxLocation.TABLE
 
 	_unlocked_snacks.clear()
 	for snack_id: String in data.get("unlocked_snacks", STARTING_UNLOCKED_SNACKS):
@@ -403,8 +417,11 @@ func is_slot_opened(slot_index: int) -> bool:
 func take_snack(slot_index: int) -> Dictionary:
 	if slot_index < 0 or slot_index >= _inventory.size() or _inventory[slot_index].is_empty():
 		return {}
+	# La caja de envío no es un snack: se maneja con put_box_on_table().
+	if is_slot_box(slot_index):
+		return {}
 	var slot := _inventory[slot_index]
-	var taken := {"snack_id": slot["snack_id"], "bites_left": slot.get("bites_left", -1)}
+	var taken :={"snack_id": slot["snack_id"], "bites_left": slot.get("bites_left", -1)}
 	slot["count"] -= 1
 	if slot["count"] <= 0:
 		_inventory[slot_index] = {}
@@ -469,11 +486,12 @@ func collect_table_tazo(index: int) -> bool:
 	return true
 
 
-## Vende el tazo de la mesa: va a la caja de envío con su precio de hoy
-## (GDD 5.8). El dinero llega cuando el repartidor recoge la caja en la
-## puerta. Devuelve el precio (-1 si no existe).
-func sell_table_tazo(index: int) -> int:
-	if _get_table_tazo_data(index) == null:
+## Empaca el tazo de la mesa en la caja de envío con su precio de hoy
+## (GDD 5.8). Solo se puede si la caja está junto a la mesa. El dinero
+## llega cuando el repartidor se lleva la caja de la puerta.
+## Devuelve el precio (-1 si no se pudo).
+func pack_table_tazo(index: int) -> int:
+	if _get_table_tazo_data(index) == null or not can_pack():
 		return -1
 	var price := get_table_tazo_sale_price(index)
 	_shipping_box.append({"tazo_id": _table_tazos[index]["tazo_id"], "price": price})
@@ -482,7 +500,20 @@ func sell_table_tazo(index: int) -> int:
 	return price
 
 
-# --- Envíos (caja y repartidor) ---
+# --- Caja de envío, puerta y repartidor ---
+# La caja es un objeto único que está en UN lugar a la vez: junto a la mesa
+# (se empaca), en el inventario (se lleva) o en la puerta (espera al
+# repartidor). El repartidor se lleva los tazos y deja el dinero en la
+# bandeja de la puerta; la caja vacía se queda ahí para recogerla.
+
+func get_box_location() -> BoxLocation:
+	return _box_location
+
+
+## Solo se empaca con la caja junto a la mesa.
+func can_pack() -> bool:
+	return _box_location == BoxLocation.TABLE
+
 
 func get_shipping_box_count() -> int:
 	return _shipping_box.size()
@@ -492,35 +523,75 @@ func get_shipping_box_total() -> int:
 	return _sum_prices(_shipping_box)
 
 
-func get_door_box_count() -> int:
-	return _door_box.size()
+func get_door_money() -> int:
+	return _door_money
 
 
-func get_door_box_total() -> int:
-	return _sum_prices(_door_box)
-
-
-## Lleva la caja de envío a la puerta: todo pasa a esperar al repartidor.
-## Devuelve cuántos tazos se movieron.
-func move_box_to_door() -> int:
-	var moved := _shipping_box.size()
-	if moved == 0:
-		return 0
-	_door_box.append_array(_shipping_box)
-	_shipping_box.clear()
+## Recoge la caja (de la mesa o de la puerta) al inventario: ocupa un
+## espacio vacío completo. Devuelve false si no hay espacio.
+func pick_up_box() -> bool:
+	if _box_location == BoxLocation.INVENTORY:
+		return false
+	var index := _inventory.find({})
+	if index == -1:
+		return false
+	_inventory[index] = {"special": SHIPPING_BOX_ITEM}
+	_box_location = BoxLocation.INVENTORY
+	EventBus.inventory_changed.emit()
 	EventBus.shipping_changed.emit()
-	return moved
+	return true
 
 
-## El repartidor recoge lo que hay en la puerta y paga. Devuelve lo pagado.
-func collect_door_box() -> int:
-	var total := get_door_box_total()
-	if _door_box.is_empty():
+## Deja la caja (que se lleva en el inventario) junto a la puerta.
+func drop_box_at_door() -> bool:
+	return _drop_box(BoxLocation.DOOR)
+
+
+## Devuelve la caja (que se lleva en el inventario) junto a la mesa.
+func put_box_on_table() -> bool:
+	return _drop_box(BoxLocation.TABLE)
+
+
+## ¿El espacio del inventario tiene la caja de envío?
+func is_slot_box(slot_index: int) -> bool:
+	if slot_index < 0 or slot_index >= _inventory.size():
+		return false
+	return _inventory[slot_index].get("special", &"") == SHIPPING_BOX_ITEM
+
+
+## Pasa el repartidor: si la caja está en la puerta y tiene tazos, se los
+## lleva y deja el dinero en la bandeja de la puerta. Devuelve lo que dejó.
+func courier_collect() -> int:
+	if _box_location != BoxLocation.DOOR or _shipping_box.is_empty():
 		return 0
-	_door_box.clear()
-	add_money(total)
+	var total := get_shipping_box_total()
+	_shipping_box.clear()
+	_door_money += total
 	EventBus.shipping_changed.emit()
 	return total
+
+
+## Recoge el dinero de la bandeja de la puerta. Devuelve cuánto era.
+func collect_door_money() -> int:
+	var amount := _door_money
+	if amount <= 0:
+		return 0
+	_door_money = 0
+	add_money(amount)
+	EventBus.shipping_changed.emit()
+	return amount
+
+
+func _drop_box(location: BoxLocation) -> bool:
+	if _box_location != BoxLocation.INVENTORY:
+		return false
+	for i in _inventory.size():
+		if is_slot_box(i):
+			_inventory[i] = {}
+	_box_location = location
+	EventBus.inventory_changed.emit()
+	EventBus.shipping_changed.emit()
+	return true
 
 
 func _sum_prices(items: Array[Dictionary]) -> int:
@@ -603,8 +674,9 @@ func buy_snack(snack_id: StringName) -> BuyResult:
 func _find_slot_for(snack_id: StringName) -> int:
 	for i in _inventory.size():
 		var slot := _inventory[i]
-		# Un snack abierto ("bites_left") nunca recibe otros encima.
-		if not slot.is_empty() and not slot.has("bites_left") \
+		# Un snack abierto ("bites_left") nunca recibe otros encima, ni la
+		# caja de envío ("special").
+		if not slot.is_empty() and not slot.has("bites_left") and not slot.has("special") \
 				and slot["snack_id"] == snack_id and slot["count"] < MAX_STACK:
 			return i
 	for i in _inventory.size():
