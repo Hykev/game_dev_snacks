@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/toilet.tscn" id="9_toilet"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/bed.tscn" id="10_bed"]
 [ext_resource type="PackedScene" path="res://scenes/ui/day/day_screens.tscn" id="11_day_screens"]
-[ext_resource type="Script" path="res://scenes/world/day_cycle.gd" id="12_day_cycle"]
+[ext_resource type="Script" uid="uid://4koroqrmi0uw" path="res://scenes/world/day_cycle.gd" id="12_day_cycle"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/front_door.tscn" id="13_door"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/shipping_box.tscn" id="14_box"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/debug_menu.tscn" id="15_debug"]
@@ -56,20 +56,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -1)
 [node name="EatingStation" parent="." unique_id=947374215 instance=ExtResource("7_station")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1, 0, 4)
 
-[node name="Toilet" parent="." instance=ExtResource("9_toilet")]
+[node name="Toilet" parent="." unique_id=374906979 instance=ExtResource("9_toilet")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)
 
-[node name="Bed" parent="." instance=ExtResource("10_bed")]
+[node name="Bed" parent="." unique_id=1006908618 instance=ExtResource("10_bed")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 6)
 
-[node name="FrontDoor" parent="." instance=ExtResource("13_door")]
+[node name="FrontDoor" parent="." unique_id=1442602894 instance=ExtResource("13_door")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -9)
 
-[node name="ShippingBox" parent="." node_paths=PackedStringArray("table_spot", "door_spot") instance=ExtResource("14_box")]
+[node name="ShippingBox" parent="." unique_id=941721844 node_paths=PackedStringArray("table_spot", "door_spot") instance=ExtResource("14_box")]
 table_spot = NodePath("../EatingStation/BoxSpot")
 door_spot = NodePath("../FrontDoor/BoxSpot")
 
-[node name="DayCycle" type="Node" parent="." node_paths=PackedStringArray("wake_point")]
+[node name="DayCycle" type="Node" parent="." unique_id=793953460 node_paths=PackedStringArray("wake_point")]
 script = ExtResource("12_day_cycle")
 wake_point = NodePath("../Bed/WakePoint")
 
@@ -77,8 +77,8 @@ wake_point = NodePath("../Bed/WakePoint")
 
 [node name="VendingPanel" parent="." unique_id=1919004749 instance=ExtResource("6_vending_panel")]
 
-[node name="TazoCard" parent="." instance=ExtResource("8_tazo_card")]
+[node name="TazoCard" parent="." unique_id=58996579 instance=ExtResource("8_tazo_card")]
 
-[node name="DayScreens" parent="." instance=ExtResource("11_day_screens")]
+[node name="DayScreens" parent="." unique_id=558556865 instance=ExtResource("11_day_screens")]
 
-[node name="DebugMenu" parent="." instance=ExtResource("15_debug")]
+[node name="DebugMenu" parent="." unique_id=1757622401 instance=ExtResource("15_debug")]
