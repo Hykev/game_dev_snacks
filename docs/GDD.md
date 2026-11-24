@@ -56,7 +56,7 @@ La historia es una excusa ligera y graciosa para el loop: deber dinero, comer pa
 
 1. **Despedido** — Intro, tutorial, primer fragmento. El Ente instala las apps. Meta: primer pago al banco.
 2. **La máquina despierta** — La máquina sube de nivel; llegan nuevas marcas. El Ente explica la historia de Crunchicorp a medias.
-3. **Azar** — El Ente revela su nombre y que estuvo atrapado 30 años. Aparecen los tazos malditos (Crunchicorp sigue rastreando los fragmentos).
+3. **Azar** — El Ente revela su nombre y que estuvo atrapado 30 años. Aparecen los tazos corruptos: Crunchicorp les metió un chip rastreador (defectuoso) para seguir la pista de los fragmentos.
 4. **Crunchicorp llama** — Un agente de Crunchicorp ofrece comprar la máquina por una fortuna. Rechazar es la única opción jugable, pero plantea la duda de si confías en Azar.
 5. **El último pago** — Pago final de la deuda y últimos fragmentos. Llega la decisión final.
 
@@ -64,7 +64,7 @@ La historia es una excusa ligera y graciosa para el loop: deber dinero, comer pa
 
 - **Final A · Devolver el poder:** Azar recupera su forma, cumple su palabra y te deja una vida llena de suerte. Créditos con el apartamento lujoso.
 - **Final B · Quedarte el poder:** Te vuelves el nuevo espíritu atrapado en la máquina. Escena final: un nuevo inquilino despierta con una llamada… y la voz es la tuya.
-- **Final C · El Pacto (solo con el álbum maldito completo):** le vendes a Azar a Crunchicorp. Te vuelves el nuevo director de la empresa y la última escena es un comercial de TV con tu cara como mascota.
+- **Final C · El Trato (solo con el álbum corrupto completo):** le vendes a Azar a Crunchicorp. Te vuelves el nuevo director de la empresa y la última escena es un comercial de TV con tu cara como mascota.
 - **Final secreto · 100 % de álbumes:** El jefe llama rogando que vuelvas a trabajar; puedes colgarle. Se desbloquea un tazo de oro del desarrollador.
 - No existe final malo: perder una semana solo la reinicia (sección 4). Tras cualquier final hay **juego libre** para completar mejoras y álbumes.
 
@@ -98,7 +98,7 @@ El apartamento es el indicador visual del avance. Cada capítulo oculta grupos d
 
 ### Colores de rareza
 
-Gris = Basura · Blanco = Común · Verde = Poco común · Azul = Raro · Morado = Épico · Naranja = Legendario · Arcoíris animado = Mágico · Rojo oscuro = Maldito.
+Gris = Basura · Blanco = Común · Verde = Poco común · Azul = Raro · Morado = Épico · Naranja = Legendario · Arcoíris animado = Mágico · Negro con parpadeo cian/magenta = Corrupto.
 
 ### Audio
 
@@ -229,7 +229,7 @@ Cada snack terminado tira primero si trae premio (65 % base) y, si sí, qué rar
 | Épico | 4 | 15× |  |
 | Legendario | 1 | 60× |  |
 | Mágico | aparte | no se vende | Fragmentos de Azar, sistema propio (5.6) |
-| Maldito | aparte, 1 por serie, desde cap. 3 | 30× | Riesgo y recompensa, sistema propio (5.10) |
+| Corrupto | aparte, 1 por serie, desde cap. 3 | 30× | Riesgo y recompensa, sistema propio (5.10) |
 
 *Valor relativo = múltiplo del precio del snack del que salió.* Variantes que se aplican encima: **Holográfico** (3 %, ×5 de valor; no ocupa casilla propia: vuelve brillante la casilla del álbum y cuenta para el logro Platino) y **Mal impreso** (0,5 %, ×10, uno por serie con casilla propia en el álbum).
 
@@ -243,7 +243,7 @@ Cada snack terminado tira primero si trae premio (65 % base) y, si sí, qué rar
 
 - Estadística visible (trébol en el HUD). Empieza en 0 %.
 - La suerte multiplica los pesos de las rarezas altas, no los de Común (fórmula en la sección 7).
-- Fuentes: mejoras, álbumes completos, casilla dorada, bebidas, fragmentos recuperados (+2 % cada uno) y tazos Malditos (5.10).
+- Fuentes: mejoras, álbumes completos, casilla dorada, bebidas, fragmentos recuperados (+2 % cada uno) y tazos Corruptos (5.10).
 - **Protección anti-mala-racha:** cada snack sin un tazo nuevo para la colección sube un 2 % la probabilidad de que el siguiente sea uno que no tienes. Se reinicia al conseguir uno nuevo.
 
 ### 5.8 Colección, venta y reciclaje
@@ -252,9 +252,9 @@ Cada tazo que sale se acomoda en la zona de tazos (izquierda de la mesa). Al hac
 
 - **C · Coleccionar:** solo si no lo tienes. Va al álbum de su serie en la repisa (animación corta). Los repetidos muestran el botón en gris.
 - **V · Vender:** va a la caja de envío junto a la puerta.
-- **R · Reciclar:** se convierte en Brillos (Común 1, Poco común 3, Raro 10, Épico 40, Legendario 150). Reciclar un Maldito quita la maldición y da 100.
+- **R · Reciclar:** se convierte en Brillos (Común 1, Poco común 3, Raro 10, Épico 40, Legendario 150). Reciclar un Corrupto lo repara y da 100.
 
-**Álbumes:** uno por serie (16) en las repisas junto a la mesa, cada uno con 15 casillas + 1 Mal impreso + 1 Maldito. Además, un álbum de Fragmentos (12) y uno de **Secretos** con 12 casillas «???» para los tazos de los easter eggs. Completar una página da +1 % de suerte; completar un álbum da un bono permanente propio de esa serie (ej. +10 % al valor de venta de esa marca). Es la razón para coleccionar en vez de vender.
+**Álbumes:** uno por serie (16) en las repisas junto a la mesa, cada uno con 15 casillas + 1 Mal impreso + 1 Corrupto. Además, un álbum de Fragmentos (12) y uno de **Secretos** con 12 casillas «???» para los tazos de los easter eggs. Completar una página da +1 % de suerte; completar un álbum da un bono permanente propio de esa serie (ej. +10 % al valor de venta de esa marca). Es la razón para coleccionar en vez de vender.
 
 **Venta:**
 
@@ -270,20 +270,20 @@ Cada tazo que sale se acomoda en la zona de tazos (izquierda de la mesa). Al hac
 - Se puede abonar antes en cualquier momento desde la app; abonar de más reduce el siguiente pago.
 - Desde el cap. 2 el banco ofrece **préstamos rápidos** con 40 % de interés: un riesgo opcional para acelerar mejoras.
 
-### 5.10 Tazos Malditos y el 666
+### 5.10 Tazos Corruptos y el Error 67
 
-La mecánica de riesgo del juego, inspirada en el 666 de CloverPit: los Malditos te hacen ganar mucho más, pero cada uno aumenta la probabilidad de perder casi todo tu efectivo.
+La mecánica de riesgo del juego, inspirada en el riesgo acumulado de CloverPit. Los Corruptos (*Glitched* en inglés) son tazos con un chip rastreador de Crunchicorp que falla: te hacen ganar mucho más, pero cada uno aumenta la probabilidad de perder casi todo tu efectivo. Quedarte con ellos es apostar a tu suerte.
 
-- **16 Malditos,** uno por serie, desde el cap. 3. Borde rojo oscuro, música distorsionada al salir.
-- **La recompensa:** cada Maldito que tengas (en la mesa o en el álbum) da +25 % al valor de venta de todos los tazos y +5 % de suerte.
-- **El riesgo:** por cada snack que comes hay una probabilidad de **666** igual a 0,66 % × Malditos que tengas. Si sale, la máquina se pone roja, suena un acorde infernal y Crunchicorp se lleva el 66 % de tu efectivo y destruye uno de tus Malditos.
-- **Cómo protegerte:** el dinero en la cuenta de ahorro de BanCruel no se toca; mejoras como Caja Fuerte, Alarma Antimaldición y Amuleto de Azar reducen el golpe o la probabilidad (sección 8).
-- **Salir del riesgo:** reciclar un Maldito quita su efecto y da 100 Brillos; venderlo da 30× (×2 con Coleccionista Oscuro).
-- **El álbum maldito:** completarlo deja la probabilidad en 10,6 % por snack, pero desbloquea una tercera opción en la decisión final: el **Final del Pacto** (sección 2).
+- **16 Corruptos,** uno por serie, desde el cap. 3. Sprite y borde con parpadeo glitch (píxeles desplazados, cian/magenta); la música se entrecorta al salir. Se coleccionan como cualquier tazo: tienen su casilla en el álbum de su serie.
+- **La recompensa:** cada Corrupto que tengas (en la mesa o en el álbum) da +25 % al valor de venta de todos los tazos y +5 % de suerte.
+- **El riesgo:** por cada snack que comes hay una probabilidad de **Error 67** igual a 0,67 % × Corruptos que tengas. Si sale, la máquina se congela con una pantalla azul de error, suena el «ding» de sistema caído y el «soporte técnico» de Crunchicorp se lleva el 67 % de tu efectivo y uno de tus Corruptos.
+- **Cómo protegerte:** el dinero en la cuenta de ahorro de BanCruel no se toca; mejoras como Caja Fuerte, Antivirus Casero y Parche de Azar reducen el golpe o la probabilidad (sección 8).
+- **Salir del riesgo:** reciclar un Corrupto lo repara (pierde su efecto) y da 100 Brillos; venderlo da 30× (×2 con Cazador de Glitches).
+- **El álbum corrupto:** tener los 16 a la vez deja la probabilidad en 10,72 % por snack, pero da +400 % al valor de venta y +80 % de suerte, y desbloquea una tercera opción en la decisión final: el **Final del Trato** (sección 2).
 
 ## 6. Catálogo de snacks y coleccionables
 
-16 snacks (3 por capítulo y 4 en el último) y 4 bebidas llenan las 20 casillas de la máquina. Cada snack trae su serie de 15 tazos, para un total de **296 casillas de álbum**: 240 normales, 16 Mal impresos, 16 Malditos, 12 Fragmentos y 12 Secretos. Las 240 versiones holográficas son un reto opcional (logro Platino) sin arte extra, porque se hacen con un shader.
+16 snacks (3 por capítulo y 4 en el último) y 4 bebidas llenan las 20 casillas de la máquina. Cada snack trae su serie de 15 tazos, para un total de **296 casillas de álbum**: 240 normales, 16 Mal impresos, 16 Corruptos, 12 Fragmentos y 12 Secretos. Las 240 versiones holográficas son un reto opcional (logro Platino) sin arte extra, porque se hacen con un shader.
 
 **Nombres que funcionan en inglés y español.** El chiste vive en una palabra en inglés que muchos hispanohablantes ya conocen (cringe, fake, cheat, meh, more), así que el nombre no se traduce: solo se traducen las descripciones. Cada parodia cambia nombre, logo y colores lo suficiente para no confundirse con la marca real.
 
@@ -319,7 +319,7 @@ Precios en «pesos del juego» ($); primera propuesta para el balance (sección 
 
 ### Estructura de cada serie
 
-15 tazos: 5 Comunes, 4 Poco comunes, 3 Raros, 2 Épicos y 1 Legendario, más su Mal impreso y su Maldito. Cada tazo es un **sprite de 16×16** sobre un marco común que cambia de color según la rareza; en la carta se muestra ampliado ×8 sin suavizado. Cada uno tiene: código (ej. «DRK-07»), nombre y una frase corta en el reverso (en inglés y español).
+15 tazos: 5 Comunes, 4 Poco comunes, 3 Raros, 2 Épicos y 1 Legendario, más su Mal impreso y su Corrupto. Cada tazo es un **sprite de 16×16** sobre un marco común que cambia de color según la rareza; en la carta se muestra ampliado ×8 sin suavizado. Cada uno tiene: código (ej. «DRK-07»), nombre y una frase corta en el reverso (en inglés y español).
 
 Ejemplos para dar el tono:
 
@@ -410,8 +410,8 @@ Costos base en la moneda indicada; cada nivel sube con la fórmula de la secció
 | Zona de Tazos Ampliada | +4 casillas en la zona de tazos | 3 | $150 | Cap. 1 |
 | Repisa Nueva | Espacio para los álbumes del capítulo siguiente (decorativo + necesario) | 4 | $500 | Por capítulo |
 | Sofá con Ruedas | La silla de la mesa queda junto a la máquina: compras sin levantarte | 1 | $3.000 | Cap. 3 |
-| Caja Fuerte | El 666 no toca un 25 % de tu efectivo | 2 | $2.500 | Cap. 3 |
-| Alarma Antimaldición | −20 % probabilidad del 666 | 3 | $4.000 | Cap. 3 |
+| Caja Fuerte | El Error 67 no toca un 25 % de tu efectivo | 2 | $2.500 | Cap. 3 |
+| Antivirus Casero | −20 % probabilidad del Error 67 | 3 | $4.000 | Cap. 3 |
 | Robot Aspiradora | Recoge los tazos de la mesa y aplica una regla (ej. vender repetidos) | 1 | $15.000 | Cap. 4 |
 | Inodoro Inteligente | El baño es instantáneo | 1 | $60.000 | Cap. 5 + Tripas Express 5 |
 
@@ -425,7 +425,7 @@ Costos base en la moneda indicada; cada nivel sube con la fórmula de la secció
 | Paquete Sorpresa | Vender 10 repetidos de una vez regala 1 snack al azar | 1 | $300 | Cap. 1 |
 | Repartidor Puntual | El repartidor pasa cada 1 h en vez de 2 h | 1 | $400 | Cap. 2 |
 | Autoventa de Repetidos | Los repetidos van solos a la caja | 1 | $5.000 | Cap. 3 |
-| Coleccionista Oscuro | Comprador que paga ×2 por tazos Malditos | 1 | $8.000 | Cap. 3 |
+| Cazador de Glitches | Comprador que paga ×2 por tazos Corruptos | 1 | $8.000 | Cap. 3 |
 | Venta Instantánea | El dinero llega al vender, sin esperar | 1 | $10.000 | Cap. 3 + Repartidor Puntual |
 | Casa de Subastas | Los Legendarios se venden con +50 % | 1 | $25.000 | Cap. 4 |
 
@@ -443,8 +443,8 @@ Costos base en la moneda indicada; cada nivel sube con la fórmula de la secció
 | Reciclaje Eficiente | +25 % Brillos al reciclar | 4 | 50 ✦ | Cap. 2 |
 | Doble Casilla Dorada | 2 casillas doradas al día | 1 | 200 ✦ | Cap. 3 |
 | Olfato de Coleccionista | Anti-mala-racha sube 4 % en vez de 2 % | 2 | 150 ✦ | Cap. 3 |
-| Imán Maldito | +50 % probabilidad de que salga un Maldito (para valientes) | 2 | 100 ✦ | Cap. 3 |
-| Amuleto de Azar | −15 % probabilidad del 666 | 3 | 120 ✦ | Cap. 3 |
+| Imán de Glitches | +50 % probabilidad de que salga un Corrupto (para valientes) | 2 | 100 ✦ | Cap. 3 |
+| Parche de Azar | −15 % probabilidad del Error 67 | 3 | 120 ✦ | Cap. 3 |
 | Cañón de Snacks | La máquina dispara a la mesa lo que eliges en el panel | 1 | 1.000 ✦ | Cap. 4 + Sofá con Ruedas |
 | Modo Infinito | La máquina compra y lanza snacks sola cada 10 s mientras estés sentado | 1 | 5.000 ✦ | Cap. 5 + Cañón de Snacks |
 
@@ -689,7 +689,7 @@ Tu intro y tutorial se mantienen tal cual (solo con ortografía corregida); aña
 
 **Ente:** Puedes llamarme Azar. Hace treinta años que nadie dice mi nombre.
 
-**Azar:** Cuidado: Crunchicorp también escondió tazos malditos para encontrar a quien me busque.
+**Azar:** Cuidado: Crunchicorp también escondió tazos corruptos, con un chip para encontrar a quien me busque.
 
 **Inicio del cap. 4** \[Número desconocido\]
 
@@ -723,13 +723,13 @@ Tu intro y tutorial se mantienen tal cual (solo con ortografía corregida); aña
 
 **Azar:** Están todos. Puedo sentirme entero otra vez… o puedes quedarte con todo.
 
-*Opciones: «Devolverte tu poder» / «Quedarme el poder» / «Pacto con Crunchicorp» (solo con el álbum maldito completo).*
+*Opciones: «Devolverte tu poder» / «Quedarme el poder» / «Trato con Crunchicorp» (solo con el álbum corrupto completo).*
 
 - **Final A:** **Azar:** Cumpliste. Te dejaré un poco de suerte… para siempre. \[La máquina se apaga para siempre. Créditos.\]
 - **Final B:** **Prota:** Con esto nunca más voy a deber nada. \[Fundido a blanco. Otro apartamento. Suena un teléfono.\] **Voz del prota, con eco:** Veo que has hallado mi tazo mágico…
 - **Final secreto (100 %):** **Jefe:** Oye… sobre lo del despido… ¿no quieres volver? Te subo el sueldo. *Opciones: «No» / \[Colgar\]*.
 
-* **Final C (Pacto):** **Agente de Crunchicorp:** Sabíamos que eras de los nuestros. Bienvenido a la familia. \[La máquina se apaga en rojo. Comercial de TV con el protagonista disfrazado de mascota: «Crunchicorp: tu suerte, nuestra receta».\]
+* **Final C (Trato):** **Agente de Crunchicorp:** Sabíamos que eras de los nuestros. Bienvenido a la familia. \[La máquina se apaga en rojo. Comercial de TV con el protagonista disfrazado de mascota: «Crunchicorp: tu suerte, nuestra receta».\]
 
 ### Frases sueltas del protagonista (aleatorias, sin repetir seguidas)
 
@@ -738,7 +738,7 @@ Tu intro y tutorial se mantienen tal cual (solo con ortografía corregida); aña
 - Con la llenura al máximo: «Ya no me cabe ni un chisme.» · «Si como uno más, exploto.»
 - En el baño: «Momento de reflexión.» · «Aquí nacen las grandes ideas.»
 - Al repetir un tazo: «Otra vez tú.» · «Ya te tengo, amigo. Vete a TazoBay.»
-- Con un Maldito: «Siento que me mira.»
+- Con un Corrupto: «Creo que este tazo tiene lag.»
 
 ### Notas del repartidor (una nueva por día, cada vez más raras)
 
@@ -781,8 +781,8 @@ Cada uno de estos 12 secretos da además un tazo para la página **Secretos** de
 
 ### Logros de Steam (propuesta de 23)
 
-- **Historia:** Despedido (terminar la intro) · Primer pago · La máquina despierta · Azar · Libre de deudas · Final A · Final B · Final del Pacto · Final secreto.
-- **Colección:** Primer álbum completo · Todos los álbumes · Primer Legendario · Primer Mal impreso · Maldito y orgulloso (tener 3 Malditos a la vez) · Sobreviviente del 666 · Platino (todas las casillas holográficas).
+- **Historia:** Despedido (terminar la intro) · Primer pago · La máquina despierta · Azar · Libre de deudas · Final A · Final B · Final del Trato · Final secreto.
+- **Colección:** Primer álbum completo · Todos los álbumes · Primer Legendario · Primer Mal impreso · No es un bug, es una función (tener 3 Corruptos a la vez) · Sobreviviente del Error 67 · Platino (todas las casillas holográficas).
 - **Absurdos:** Hidrólogo · Estómago de acero (comer 50 snacks en un día) · Ayuno (dormir sin comer nada) · Insomne (llegar a las 02:00 tres días seguidos) · Amigo del mapache · Jardinero · Millonario (tener $1.000.000 a la vez).
 
 ## 14. Arquitectura técnica en Godot 4
@@ -828,7 +828,7 @@ Versión: la estable más reciente de Godot 4 al empezar, con GDScript. Solo se 
 
 ### Sistemas de lógica (clases sin escena)
 
-- `LootSystem`: `roll(snack, luck, pity, rng) -> LootResult`. Aplica premio sí/no, rareza con suerte, variante, fragmento, Maldito, anti-mala-racha y la tirada del 666.
+- `LootSystem`: `roll(snack, luck, pity, rng) -> LootResult`. Aplica premio sí/no, rareza con suerte, variante, fragmento, Corrupto, anti-mala-racha y la tirada del Error 67.
 - `Economy`: precio de venta y costo de mejora.
 - `Stats`: calcula estadísticas finales (velocidad, llenura máxima, suerte…) a partir de las mejoras compradas. Cada `UpgradeData` declara `stat_id`, operación (+ o ×) y valor por nivel; `Stats` recalcula y guarda en caché solo cuando llega `upgrade_purchased`.
 - `ObjectiveSystem`: pasos del tutorial y metas de capítulo; cada paso escucha una señal del `EventBus` (ej. «completar cuando llegue `snack_opened`»).
