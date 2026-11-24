@@ -1,9 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://c2jpx5kign0t5"]
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud/hud.tscn" id="2_hud"]
-[ext_resource type="Script" path="res://scenes/world/interactables/debug_interact_cube.gd" id="3_debug_cube"]
-[ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="4_interactable"]
+[ext_resource type="Script" uid="uid://bixt56p22aq3p" path="res://scenes/world/interactables/debug_interact_cube.gd" id="3_debug_cube"]
+[ext_resource type="Script" uid="uid://ddhupav2nq455" path="res://scenes/world/interactables/interactable.gd" id="4_interactable"]
 [ext_resource type="PackedScene" path="res://scenes/world/interactables/vending_machine.tscn" id="5_machine"]
 [ext_resource type="PackedScene" path="res://scenes/ui/vending/vending_panel.tscn" id="6_vending_panel"]
 [ext_resource type="PackedScene" path="res://scenes/eating/eating_station.tscn" id="7_station"]
@@ -14,6 +14,9 @@ background_color = Color(0.55, 0.6, 0.65, 1)
 ambient_light_source = 2
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5cmiw"]
+albedo_color = Color(0.5546875, 0.028167725, 0.028167725, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(20, 0.2, 20)
@@ -28,66 +31,67 @@ size = Vector3(20, 0.2, 20)
 [sub_resource type="BoxShape3D" id="BoxShape3D_interact"]
 size = Vector3(1.1, 1.1, 1.1)
 
-[node name="TestRoom" type="Node3D"]
+[node name="TestRoom" type="Node3D" unique_id=1558570043]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1500373966]
 environment = SubResource("Environment_room")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=396678801]
 transform = Transform3D(1, 0, 0, 0, 0.6428, -0.766, 0, 0.766, 0.6428, 0, 5, 0)
 
-[node name="Floor" type="StaticBody3D" parent="."]
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1478460165]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=1818178986]
+material_overlay = SubResource("StandardMaterial3D_5cmiw")
 mesh = SubResource("BoxMesh_floor")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=2129548279]
 shape = SubResource("BoxShape3D_floor")
 
-[node name="CubeA" type="StaticBody3D" parent="."]
+[node name="CubeA" type="StaticBody3D" parent="." unique_id=325695123]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, -4)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeA"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeA" unique_id=664403398]
 mesh = SubResource("BoxMesh_cube")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeA"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeA" unique_id=1973284993]
 shape = SubResource("BoxShape3D_cube")
 
-[node name="CubeB" type="StaticBody3D" parent="."]
+[node name="CubeB" type="StaticBody3D" parent="." unique_id=929028456]
 transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, -4, 1, -6)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeB"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CubeB" unique_id=751315855]
 mesh = SubResource("BoxMesh_cube")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeB"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CubeB" unique_id=761120835]
 shape = SubResource("BoxShape3D_cube")
 
-[node name="DebugCube" type="StaticBody3D" parent="."]
+[node name="DebugCube" type="StaticBody3D" parent="." unique_id=2131680498]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -3)
 script = ExtResource("3_debug_cube")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="DebugCube"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DebugCube" unique_id=279607975]
 mesh = SubResource("BoxMesh_cube")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube" unique_id=669301819]
 shape = SubResource("BoxShape3D_cube")
 
-[node name="Interactable" type="Area3D" parent="DebugCube"]
+[node name="Interactable" type="Area3D" parent="DebugCube" unique_id=1520793660]
 script = ExtResource("4_interactable")
 prompt_text = "Probar"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube/Interactable"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube/Interactable" unique_id=105879567]
 shape = SubResource("BoxShape3D_interact")
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
+[node name="Player" parent="." unique_id=552234118 instance=ExtResource("1_player")]
 
-[node name="VendingMachine" parent="." instance=ExtResource("5_machine")]
+[node name="VendingMachine" parent="." unique_id=1319258141 instance=ExtResource("5_machine")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -1)
 
-[node name="EatingStation" parent="." instance=ExtResource("7_station")]
+[node name="EatingStation" parent="." unique_id=947374215 instance=ExtResource("7_station")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 1, 0, 4)
 
-[node name="HUD" parent="." instance=ExtResource("2_hud")]
+[node name="HUD" parent="." unique_id=414677038 instance=ExtResource("2_hud")]
 
-[node name="VendingPanel" parent="." instance=ExtResource("6_vending_panel")]
+[node name="VendingPanel" parent="." unique_id=1919004749 instance=ExtResource("6_vending_panel")]
