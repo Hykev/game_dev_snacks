@@ -145,6 +145,21 @@ signal day_summary_closed()
 @warning_ignore("unused_signal")
 signal day_started(day: int)
 
+# --- Guardado (las emite SaveManager) ---
+
+## Se va a guardar: quien tenga estado que solo vive en objetos físicos (la
+## mesa con sus snacks sueltos) debe entregarlo a GameState ahora.
+@warning_ignore("unused_signal")
+signal save_requested()
+
+## Se guardó la partida en la ranura `slot`.
+@warning_ignore("unused_signal")
+signal game_saved(slot: int)
+
+## Se cargó la partida de la ranura `slot`.
+@warning_ignore("unused_signal")
+signal game_loaded(slot: int)
+
 # --- Jugador y estaciones ---
 
 ## La mesa pide que el jugador se siente y le pasa su cámara fija y el punto

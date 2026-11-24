@@ -44,6 +44,14 @@ func start_day() -> void:
 	EventBus.sleepy_changed.emit(false)
 
 
+## Pone el reloj en un minuto concreto (al cargar una partida guardada a
+## mitad del día). Avisa si ya pasó la medianoche.
+func set_minute(minute: int) -> void:
+	_minute_of_day = clampf(minute, DAY_START_MINUTE, FAINT_MINUTE - 1)
+	EventBus.clock_changed.emit(get_whole_minute())
+	EventBus.sleepy_changed.emit(_minute_of_day >= SLEEPY_MINUTE)
+
+
 ## Detiene el reloj (al dormir o desmayarse) hasta el próximo start_day().
 func stop() -> void:
 	_running = false

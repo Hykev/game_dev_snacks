@@ -89,6 +89,12 @@ var _table_tazos: Array[Dictionary] = []
 # un diccionario como "conjunto" para preguntar rápido si ya lo tiene.
 var _collection: Dictionary[StringName, bool] = {}
 
+# Snacks sueltos (en la mesa o el piso) al momento de guardar, como
+# {"snack_id", "bites_left"} (bites_left = -1 si estaba cerrado). Son
+# objetos con física en la escena; aquí solo viven para guardarlos y, al
+# cargar, la mesa los vuelve a crear. No se guardan posiciones (GDD 14).
+var _loose_snacks: Array[Dictionary] = []
+
 # Un elemento por espacio de la barra rápida. Espacio vacío = {}.
 # Espacio ocupado = {"snack_id": StringName, "count": int}. Solo ids y
 # números, para que SaveManager pueda guardarlo tal cual en JSON.
@@ -155,6 +161,125 @@ func _reset_day_stats() -> void:
 		"money_spent": 0,
 		"money_lost": 0,
 	}
+
+
+# --- Snacks sueltos (para el guardado) ---
+
+## La mesa informa qué snacks hay sueltos justo antes de guardar.
+func set_loose_snacks(snacks: Array[Dictionary]) -> void:
+	_loose_snacks = snacks.duplicate(true)
+
+
+## La mesa los pide una sola vez al cargar, para volver a crearlos.
+## Se vacían al entregarlos: desde ese momento vuelven a ser objetos físicos.
+func take_loose_snacks() -> Array[Dictionary]:
+	var snacks := _loose_snacks.duplicate(true)
+	_loose_snacks.clear()
+	return snacks
+
+
+# --- Guardado ---
+# GameState sabe QUÉ guardar (es el dueño del estado); SaveManager sabe
+# CÓMO (archivo, JSON, versión, ranuras). Solo ids y números.
+
+## Todo el estado del jugador como diccionario listo para JSON.
+## Los StringName se guardan como texto; los números grandes del RNG como
+## texto también, porque JSON pierde precisión con enteros de 64 bits.
+func get_save_data() -> Dictionary:
+	var stock := {}
+	for snack_id in _machine_stock:
+		stock[String(snack_id)] = _machine_stock[snack_id]
+	return {
+		"money": _money,
+		"shines": _shines,
+		"day": _day,
+		"fullness": _fullness,
+		"inventory": _inventory.duplicate(true),
+		"collection": _collection.keys(),
+		"table_tazos": _table_tazos.duplicate(true),
+		"loose_snacks": _loose_snacks.duplicate(true),
+		"unlocked_snacks": _unlocked_snacks.duplicate(),
+		"machine_stock": stock,
+		"rng_seed": str(_rng.seed),
+		"rng_state": str(_rng.state),
+	}
+
+
+## Reemplaza el estado con lo que vino del archivo. Convierte los tipos que
+## JSON cambia (todos los números llegan como decimales y los ids como
+## texto) e ignora ids que ya no existen en Database, para que una partida
+## vieja no rompa el juego si se borró contenido.
+func apply_save_data(data: Dictionary) -> void:
+	_money = int(data.get("money", STARTING_MONEY))
+	_shines = int(data.get("shines", 0))
+	_day = int(data.get("day", 1))
+	_fullness = clampf(float(data.get("fullness", 0.0)), 0.0, MAX_FULLNESS)
+
+	_inventory.clear()
+	for slot: Dictionary in data.get("inventory", []):
+		_inventory.append(_parse_snack_entry(slot, true))
+	# resize en un arreglo tipado rellena los espacios nuevos con {} (vacío).
+	_inventory.resize(INVENTORY_SLOTS)
+
+	_collection.clear()
+	for tazo_id: String in data.get("collection", []):
+		if Database.get_tazo(tazo_id) != null:
+			_collection[StringName(tazo_id)] = true
+
+	_table_tazos.clear()
+	for entry: Dictionary in data.get("table_tazos", []):
+		if Database.get_tazo(entry["tazo_id"]) != null and Database.get_snack(entry["snack_id"]) != null:
+			_table_tazos.append({"tazo_id": StringName(entry["tazo_id"]), "snack_id": StringName(entry["snack_id"])})
+
+	_loose_snacks.clear()
+	for entry: Dictionary in data.get("loose_snacks", []):
+		var parsed := _parse_snack_entry(entry, false)
+		if not parsed.is_empty():
+			_loose_snacks.append(parsed)
+
+	_unlocked_snacks.clear()
+	for snack_id: String in data.get("unlocked_snacks", STARTING_UNLOCKED_SNACKS):
+		if Database.get_snack(snack_id) != null:
+			_unlocked_snacks.append(StringName(snack_id))
+
+	_machine_stock.clear()
+	var stock: Dictionary = data.get("machine_stock", {})
+	for snack_id: String in stock:
+		_machine_stock[StringName(snack_id)] = int(stock[snack_id])
+
+	if data.has("rng_seed"):
+		_rng.seed = String(data["rng_seed"]).to_int()
+		_rng.state = String(data["rng_state"]).to_int()
+
+	_reset_day_stats()
+	_emit_all_changed()
+
+
+# Convierte una entrada de snack del JSON ({snack_id, count?, bites_left?})
+# a tipos de Godot. {} si está vacía o el snack ya no existe.
+func _parse_snack_entry(entry: Dictionary, with_count: bool) -> Dictionary:
+	if entry.is_empty() or Database.get_snack(entry.get("snack_id", "")) == null:
+		return {}
+	var parsed := {"snack_id": StringName(entry["snack_id"])}
+	if with_count:
+		parsed["count"] = int(entry.get("count", 1))
+	if entry.has("bites_left"):
+		parsed["bites_left"] = int(entry["bites_left"])
+	elif not with_count:
+		parsed["bites_left"] = -1
+	return parsed
+
+
+# Tras cargar, avisar de todo para que lo que ya esté en pantalla se
+# actualice (lo que se crea después lee los valores en su _ready).
+func _emit_all_changed() -> void:
+	EventBus.money_changed.emit(_money)
+	EventBus.shines_changed.emit(_shines)
+	EventBus.fullness_changed.emit(_fullness, MAX_FULLNESS)
+	EventBus.inventory_changed.emit()
+	EventBus.collection_changed.emit()
+	EventBus.table_tazos_changed.emit()
+	EventBus.machine_stock_changed.emit()
 
 
 # --- Dinero ---

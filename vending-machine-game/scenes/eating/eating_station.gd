@@ -65,6 +65,9 @@ func _ready() -> void:
 	_table_surface.body_exited.connect(_on_table_surface_body_changed.bind(false))
 	EventBus.table_tazos_changed.connect(_refresh_tazo_tokens)
 	EventBus.tazo_card_closed.connect(func() -> void: _is_card_open = false)
+	EventBus.save_requested.connect(_on_save_requested)
+	# Si se cargó una partida, recrear los snacks que estaban sueltos.
+	_restore_loose_snacks()
 	_create_tazo_tokens()
 	_refresh_tazo_tokens()
 	# Sin jugador sentado no hay nada que calcular cada frame.
@@ -231,16 +234,44 @@ func _place_snack_from_slot(slot_index: int) -> void:
 	var taken := GameState.take_snack(slot_index)
 	if taken.is_empty():
 		return
+	_spawn_snack(taken["snack_id"], taken["bites_left"], DROP_HEIGHT)
+
+
+## Crea un snack físico que cae sobre la zona de comer desde `height`.
+## `bites_left` = -1 para uno cerrado; si no, llega abierto con esos bocados.
+func _spawn_snack(snack_id: StringName, bites_left: int, height: float) -> void:
 	var body := SNACK_BODY_SCENE.instantiate() as SnackBody
-	body.snack = Database.get_snack(taken["snack_id"])
+	body.snack = Database.get_snack(snack_id)
 	body.pickup_requested.connect(_on_snack_pickup_requested.bind(body))
 	_snacks_root.add_child(body)
-	# Un snack que se guardó abierto vuelve abierto, con sus bocados.
-	if taken["bites_left"] >= 0:
-		body.open(taken["bites_left"])
-	body.global_position = _eat_zone.get_drop_point(DROP_HEIGHT)
+	if bites_left >= 0:
+		body.open(bites_left)
+	body.global_position = _eat_zone.get_drop_point(height)
 	# Un giro al azar para que no caigan todos iguales.
 	body.rotation.y = randf() * TAU
+
+
+## Antes de guardar: entregar a GameState los snacks sueltos (mesa o piso)
+## como datos, porque el guardado no guarda objetos físicos.
+func _on_save_requested() -> void:
+	var loose: Array[Dictionary] = []
+	for child in _snacks_root.get_children():
+		var body := child as SnackBody
+		if body == null or body.is_queued_for_deletion():
+			continue
+		loose.append({
+			"snack_id": body.snack.id,
+			"bites_left": body.bites_left if body.is_open else -1,
+		})
+	GameState.set_loose_snacks(loose)
+
+
+## Al cargar una partida: los snacks que estaban sueltos vuelven a caer
+## sobre la mesa (cada uno un poco más alto para que no choquen al nacer).
+func _restore_loose_snacks() -> void:
+	var loose := GameState.take_loose_snacks()
+	for i in loose.size():
+		_spawn_snack(loose[i]["snack_id"], loose[i]["bites_left"], DROP_HEIGHT + i * 0.1)
 
 
 ## El snack sobre el que actúan E y Espacio: el agarrado o, si no, el señalado.

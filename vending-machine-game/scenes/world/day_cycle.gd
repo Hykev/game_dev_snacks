@@ -9,7 +9,7 @@ extends Node
 ##   2. Detener el reloj; si fue desmayo, cobrar la multa.
 ##   3. Cerrar el día (GameState) y anunciar el resumen.
 ##   4. Al cerrar el resumen: día siguiente y reloj a las 08:00.
-## Más adelante aquí irá el autoguardado (paso 7c).
+##   5. Autoguardar.
 
 ## Antes de esta hora, dormir pide confirmación (GDD 9: cama).
 const CONFIRM_BEFORE_MINUTE := 22 * 60
@@ -50,4 +50,6 @@ func _on_day_summary_closed() -> void:
 	TimeManager.start_day()
 	if wake_point != null:
 		EventBus.player_place_requested.emit(wake_point)
+	# Autoguardado al empezar cada día (GDD 4).
+	SaveManager.save_game()
 	EventBus.day_started.emit(GameState.day)
