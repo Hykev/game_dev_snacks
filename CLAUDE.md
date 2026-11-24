@@ -63,4 +63,4 @@ res://
 ## Fase actual: prototipo gris
 
 Meta: el loop completo con cubos grises (comprar → comer → tazo → vender → baño → dormir → guardar).
-Orden sugerido: 1) proyecto y autoloads vacíos, 2) jugador que camina, 3) componente `Interactable` con E, 4) máquina expendedora, 5) mesa con dos zonas (comer a la derecha, tazos a la izquierda), 6) baño y llenura, 7) dormir y guardado.
+Orden sugerido: 1) proyecto y autoloads vacíos, 2) jugador que camina, 3) componente `Interactable` con E, 4) máquina expendedora (panel 2D temporal), 5) mesa con dos zonas (comer a la derecha, tazos a la izquierda), 5d) máquina 3D sin ventanas 2D (carrito, pago y bandeja; GDD 5.1), reutilizando el cursor y el outline de la mesa, 6) baño y llenura, 7) dormir y guardado.
