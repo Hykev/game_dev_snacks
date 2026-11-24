@@ -1,6 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud/hud.tscn" id="2_hud"]
+[ext_resource type="Script" path="res://scenes/world/interactables/debug_interact_cube.gd" id="3_debug_cube"]
+[ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="4_interactable"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -18,6 +21,9 @@ size = Vector3(20, 0.2, 20)
 [sub_resource type="BoxMesh" id="BoxMesh_cube"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cube"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_interact"]
+size = Vector3(1.1, 1.1, 1.1)
 
 [node name="TestRoom" type="Node3D"]
 
@@ -54,4 +60,23 @@ mesh = SubResource("BoxMesh_cube")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CubeB"]
 shape = SubResource("BoxShape3D_cube")
 
+[node name="DebugCube" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -3)
+script = ExtResource("3_debug_cube")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DebugCube"]
+mesh = SubResource("BoxMesh_cube")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube"]
+shape = SubResource("BoxShape3D_cube")
+
+[node name="Interactable" type="Area3D" parent="DebugCube"]
+script = ExtResource("4_interactable")
+prompt_text = "Probar"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DebugCube/Interactable"]
+shape = SubResource("BoxShape3D_interact")
+
 [node name="Player" parent="." instance=ExtResource("1_player")]
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]

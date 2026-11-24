@@ -29,11 +29,20 @@ extends CharacterBody3D
 # La cabeza gira arriba/abajo; el cuerpo entero gira a los lados. Separarlos
 # evita que el jugador se incline al mirar al piso.
 @onready var _head: Node3D = %Head
+# Rayo que sale de la cámara hacia el frente: lo que toque es lo que "miras".
+# Su largo (target_position en la escena) es el alcance para usar objetos.
+@onready var _interact_ray: RayCast3D = %InteractRay
+
+# El Interactable que el jugador está mirando ahora (null si ninguno).
+var _current_interactable: Interactable = null
 
 
 func _ready() -> void:
 	# En primera persona el ratón debe quedar oculto y "atrapado" en la ventana.
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# El rayo nace dentro de la cápsula del jugador: lo excluimos para que
+	# nunca se detecte a sí mismo.
+	_interact_ray.add_exception(self)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -45,6 +54,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_head.rotate_x(-motion.relative.y * mouse_sensitivity)
 		var max_pitch := deg_to_rad(max_pitch_degrees)
 		_head.rotation.x = clampf(_head.rotation.x, -max_pitch, max_pitch)
+
+	# Usar lo que estamos mirando. El jugador no sabe QUÉ hace el objeto:
+	# solo le avisa, y el objeto decide (llamar hacia abajo).
+	elif event.is_action_pressed("interact"):
+		if _current_interactable != null:
+			_current_interactable.interact(self)
 
 	# TEMPORAL hasta que exista el menú de pausa: Esc (acción integrada
 	# "ui_cancel") suelta el ratón, y un clic lo vuelve a capturar.
@@ -77,3 +92,20 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, target_velocity.z, acceleration * delta)
 
 	move_and_slide()
+	_update_interaction_target()
+
+
+## Revisa qué toca el rayo y, solo si cambió, lo anuncia por EventBus.
+## Avisar únicamente en el cambio evita mandar la misma señal 60 veces por
+## segundo; el HUD solo se entera cuando hay algo nuevo que mostrar.
+func _update_interaction_target() -> void:
+	var target: Interactable = null
+	if _interact_ray.is_colliding():
+		# Si el rayo toca una pared u otro objeto normal, esto queda en null.
+		target = _interact_ray.get_collider() as Interactable
+
+	if target == _current_interactable:
+		return
+	_current_interactable = target
+	var prompt: String = target.prompt_text if target != null else ""
+	EventBus.interaction_prompt_changed.emit(prompt)
