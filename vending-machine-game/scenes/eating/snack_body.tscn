@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/eating/snack_body.gd" id="1_snack_body"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_bag"]
+size = Vector3(0.22, 0.06, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bag"]
+size = Vector3(0.22, 0.06, 0.3)
+
+[node name="SnackBody" type="RigidBody3D"]
+mass = 0.15
+script = ExtResource("1_snack_body")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_bag")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_bag")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09, 0)
+pixel_size = 0.0012
+billboard = 1
+no_depth_test = true
+font_size = 40
+outline_size = 8

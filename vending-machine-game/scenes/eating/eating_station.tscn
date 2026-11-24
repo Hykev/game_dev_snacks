@@ -2,6 +2,11 @@
 
 [ext_resource type="Script" path="res://scenes/eating/eating_station.gd" id="1_station"]
 [ext_resource type="Script" path="res://scenes/world/interactables/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scenes/eating/grab_controller.gd" id="3_grab"]
+[ext_resource type="Script" path="res://scenes/eating/table_zone.gd" id="4_zone"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_zone"]
+size = Vector2(0.7, 0.8)
 
 [sub_resource type="BoxMesh" id="BoxMesh_table"]
 size = Vector3(1.6, 0.75, 0.9)
@@ -52,3 +57,29 @@ shape = SubResource("BoxShape3D_interact")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 0.6428, -0.766, 0, 0.766, 0.6428, 0, 1.45, 0.6)
 fov = 60.0
+
+[node name="GrabController" type="Node3D" parent="." node_paths=PackedStringArray("camera")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+script = ExtResource("3_grab")
+camera = NodePath("../ViewCamera")
+
+[node name="EatZone" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.752, 0)
+mesh = SubResource("PlaneMesh_zone")
+script = ExtResource("4_zone")
+base_color = Color(0.3, 1, 0.4, 0.12)
+highlight_color = Color(0.3, 1, 0.4, 0.35)
+
+[node name="TazoZone" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.752, 0)
+mesh = SubResource("PlaneMesh_zone")
+script = ExtResource("4_zone")
+kind = 1
+base_color = Color(0.3, 0.6, 1, 0.12)
+highlight_color = Color(0.3, 0.6, 1, 0.35)
+
+[node name="Snacks" type="Node3D" parent="."]
+unique_name_in_owner = true

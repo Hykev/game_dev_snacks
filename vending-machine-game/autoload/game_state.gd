@@ -97,6 +97,20 @@ func add_snack(snack_id: StringName) -> bool:
 	return true
 
 
+## Saca UN snack del espacio `slot_index` (para ponerlo en la mesa).
+## Devuelve su id, o &"" si el espacio está vacío o no existe.
+func take_snack(slot_index: int) -> StringName:
+	if slot_index < 0 or slot_index >= _inventory.size() or _inventory[slot_index].is_empty():
+		return &""
+	var slot := _inventory[slot_index]
+	var snack_id: StringName = slot["snack_id"]
+	slot["count"] -= 1
+	if slot["count"] <= 0:
+		_inventory[slot_index] = {}
+	EventBus.inventory_changed.emit()
+	return snack_id
+
+
 # --- Máquina expendedora ---
 
 func is_snack_unlocked(snack_id: StringName) -> bool:
