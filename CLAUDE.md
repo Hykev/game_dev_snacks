@@ -12,6 +12,7 @@ El GDD completo está en `docs/GDD.md`; este archivo resume lo que importa para 
 - Revisa cada cambio contra los principios de arquitectura de abajo. Si algo no encaja, dilo antes de programarlo.
 - Commits pequeños con mensajes claros en español.
 - El GDD (`docs/GDD.md`, ~28k tokens) se consulta antes de programar cada sistema, pero **nunca se lee entero**: busca con Grep la sección que necesitas y lee solo esas líneas.
+- `docs/pendientes.md` lista lo que falta, lo temporal y el siguiente paso. Léelo al empezar una sesión y actualízalo al cerrar cada paso.
 
 ## Principios de arquitectura (no romper)
 
