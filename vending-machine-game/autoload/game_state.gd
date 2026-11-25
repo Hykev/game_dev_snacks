@@ -510,22 +510,6 @@ func get_stock(snack_id: StringName) -> int:
 	return _machine_stock.get(snack_id, 0)
 
 
-## ¿Todavía puede comprar algo hoy? Busca un snack activo con stock cuyo
-## precio alcance con el efectivo más el dinero que ya viene en camino (la
-## bandeja de la puerta y los tazos de la caja de envío). Si no, el jugador
-## ya no puede seguir el día y DayCycle lo deja dormir antes de la noche.
-## No cuenta los tazos sueltos en la mesa: venderlos o no es su decisión.
-func can_still_buy_from_machine() -> bool:
-	var budget := _money + _door_money + get_shipping_box_total()
-	for snack_id in _unlocked_snacks:
-		if get_stock(snack_id) <= 0:
-			continue
-		var snack := Database.get_snack(snack_id)
-		if snack != null and snack.price <= budget:
-			return true
-	return false
-
-
 ## Rellena todas las casillas activas. Por ahora se llama al iniciar; después
 ## lo llamará el flujo de "despertar a las 08:00".
 func restock_machine() -> void:

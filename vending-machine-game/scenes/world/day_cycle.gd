@@ -5,20 +5,19 @@ extends Node
 ## Existe porque nadie más debe decidirlo: TimeManager solo lleva el reloj
 ## y avisa, GameState guarda el estado pero no toca la UI, y la cama solo
 ## pide dormir. Este nodo escucha esas señales y decide el orden:
-##   1. ¿Se puede dormir? Nunca con la llenura alta (hay que ir al baño).
-##      De noche siempre; antes, solo si ya no puede seguir el día (no le
-##      alcanza para nada con stock en la máquina). Así nadie duerme días
-##      enteros seguidos y pierde de golpe, pero tampoco se queda atorado.
-##   2. ¿Es temprano? Pedir confirmación.
+##   1. ¿Se puede dormir? Desde el mediodía, cuando el jugador quiera (aunque
+##      quede stock o dinero: saltarse el día es su decisión, y el prestigio
+##      casi no premiará perder a propósito). Nunca con la llenura alta.
+##   2. ¿Es temprano? Pedir confirmación (por si fue sin querer).
 ##   3. Detener el reloj; si fue desmayo, cobrar la multa.
 ##   4. Cerrar el día (GameState) y anunciar el resumen.
 ##   5. Al cerrar el resumen: día siguiente y reloj a las 08:00.
 ##   6. Autoguardar.
 
-## Desde esta hora es «de noche»: se puede dormir aunque aún pueda comprar.
-## Antes, solo si ya no puede comprar nada, y pidiendo confirmación
-## (GDD 9: cama).
-const NIGHT_START_MINUTE := 22 * 60
+## Antes de esta hora no se puede dormir: el día recién empieza.
+const EARLIEST_SLEEP_MINUTE := 12 * 60
+## Antes de esta hora, dormir pide confirmación (GDD 9: cama).
+const CONFIRM_BEFORE_MINUTE := 22 * 60
 ## Con más llenura que esto no se puede dormir (la barra ya está naranja).
 ## No hace falta estar en 0: la llenura que tenga pasa al día siguiente.
 const MAX_FULLNESS_TO_SLEEP := 80.0
@@ -36,19 +35,16 @@ func _ready() -> void:
 
 
 func _on_sleep_requested() -> void:
+	var minute := TimeManager.get_whole_minute()
 	if GameState.fullness > MAX_FULLNESS_TO_SLEEP:
 		EventBus.notification_requested.emit(tr("Estoy demasiado lleno para dormir. Mejor voy al baño."))
-	elif TimeManager.get_whole_minute() >= NIGHT_START_MINUTE:
-		_end_day(false)
-	elif not GameState.can_still_buy_from_machine():
-		# Ya no puede seguir el día (máquina vacía o sin dinero para lo que
-		# queda): puede dormir temprano, pero se confirma por si aún quería
-		# comer lo que trae, vender o ir al baño.
+	elif minute < EARLIEST_SLEEP_MINUTE:
+		EventBus.notification_requested.emit(
+			tr("Es muy temprano para dormir (desde las %s)") % TimeManager.format_clock(EARLIEST_SLEEP_MINUTE))
+	elif minute < CONFIRM_BEFORE_MINUTE:
 		EventBus.sleep_confirmation_requested.emit(TimeManager.get_clock_text())
 	else:
-		EventBus.notification_requested.emit(
-			tr("Aún no tengo sueño: todavía puedo comprar en la máquina (o espera a las %s)")
-			% TimeManager.format_clock(NIGHT_START_MINUTE))
+		_end_day(false)
 
 
 func _on_sleep_confirmation_answered(accepted: bool) -> void:

@@ -141,7 +141,7 @@ El centro del loop es comer; el baño es la pausa obligada que las mejoras van a
 4. **Decidir cada tazo:** coleccionar (álbum), vender (caja de envío) o reciclar (Brillos).
 5. **Baño:** cuando la llenura llega al tope ya no puedes comer; vas al baño y esperas unos segundos.
 6. **Vender y mejorar:** desde el teléfono publicas en el mercado, el repartidor recoge y te deposita; compras mejoras o abonas a la deuda.
-7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día: desde las 22:00 siempre; antes, solo si ya no puedes seguir el día (no te alcanza para ningún snack con stock, contando el efectivo, el dinero de la bandeja y los tazos de la caja de envío) y pide confirmación. Con la llenura sobre 80 no se puede dormir (hay que ir al baño); no hace falta estar en 0 y la llenura pasa al día siguiente. Así nadie puede saltarse días enteros durmiendo y perder de golpe, ni quedarse atorado sin dinero.
+7. **Noche:** a las 00:00 al personaje le da sueño (camina más lento); a las 02:00 se desmaya y pierde un 10 % del dinero en efectivo en una compra absurda que hizo dormido (al azar: una lámpara de lava con forma de pato, 12 calcetines izquierdos…). Al despertar aparece junto a la cama. Dormir en la cama termina el día cuando tú quieras desde las 12:00 (antes de las 22:00 pide confirmación), aunque quede stock o dinero: si tuviste suerte puedes pasar al día siguiente para mejorar en vez de gastarlo todo. Con la llenura sobre 80 no se puede dormir (hay que ir al baño); no hace falta estar en 0 y la llenura pasa al día siguiente. Saltarse días puede hacer perder la semana, pero el prestigio casi no lo premia (ver «Semana perdida y prestigio»).
 8. **Resumen del día:** pantalla con lo comido, tazos encontrados, ganado, gastado y días para el próximo pago. Autoguardado.
 
 ### Tiempo
@@ -172,7 +172,7 @@ Ecos ganados al perder (la raíz cuadrada evita que se disparen en los capítulo
 Ecos = \sqrt{\frac{dinero\ ganado\ en\ la\ semana}{10}} + 5 \cdot fragmentos\ recuperados
 ```
 
-Ejemplo: perder la semana 1 tras ganar $400 da \~6 Ecos más 5 por cada fragmento. Las mejoras que se compran con Ecos están en la sección 8. Tras terminar la historia, los Ecos también sirven para una **Nueva partida+** opcional.
+Ejemplo: perder la semana 1 tras ganar $400 da \~6 Ecos más 5 por cada fragmento. Como se puede dormir desde el mediodía, perder a propósito (dormir días enteros sin jugar) no debe convenir: casi no gana dinero, así que la fórmula ya le da muy pocos Ecos, y la Compasión de Azar solo se da si la semana se jugó de verdad (umbral mínimo de dinero ganado, por definir). Las mejoras que se compran con Ecos están en la sección 8. Tras terminar la historia, los Ecos también sirven para una **Nueva partida+** opcional.
 
 ## 5. Mecánicas detalladas
 
@@ -491,7 +491,7 @@ Todo ocurre en un apartamento de una habitación con 11 zonas interactuables. To
 | Mesa + sofá | E: sentarse | Estación de comer: zona de comer a la derecha, zona de tazos a la izquierda | La zona donde más tiempo se pasa: la que más detalle merece |
 | Repisas de álbumes | E: abrir álbum | Ver y completar colecciones | Junto a la mesa; los álbumes completos brillan |
 | Baño (inodoro) | E: sentarse | Vaciar la llenura | Periódico decorativo con chistes y pistas de easter eggs |
-| Cama | E: dormir | Termina el día, resumen y guardado | Desde las 22:00; antes solo si ya no puede comprar nada (con confirmación). Nunca con llenura > 80 |
+| Cama | E: dormir | Termina el día, resumen y guardado | Desde las 12:00; pide confirmación antes de las 22:00. Nunca con llenura > 80 |
 | Mesa de noche | E: tomar | Teléfono (solo en el tutorial; después va en el inventario permanente) | Despertador decorativo con la hora |
 | TV | E: cambiar canal | Decorativa: comerciales de snacks, canales absurdos y easter eggs | Encendida de fondo da ambiente sonoro; no afecta la economía |
 | Puerta principal | E: dejar caja | Caja de envío de tazos vendidos; notas del repartidor | Mensajes de BanCruel deslizados bajo la puerta |
